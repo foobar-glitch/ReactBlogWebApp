@@ -28,23 +28,23 @@ This is the information Schema for the cookie/session handling:
 
 ### NOSQL Database
 This is how the blog entires are stored as of now:
-```json
+``` json
 [
   {
-    _id: ObjectId('65905af3ed63023495b73103'),
-    createdAt: 'Sat, 30 Dec 2023 18:01:23 GMT',
-    title: 'Another blog',
-    body: 'adding something new',
-    author: 'admin',
-    id: 3
+    "_id": "ObjectId('65905af3ed63023495b73103')",
+    "createdAt": "Sat, 30 Dec 2023 18:01:23 GMT",
+    "title": "Another blog",
+    "body": "adding something new",
+    "author": "admin",
+    "id": 3
   },
   {
-    _id: ObjectId('6591a724a5af322fc51330ad'),
-    createdAt: 'Sun, 31 Dec 2023 17:38:44 GMT',
-    title: 'Another blog',
-    body: 'Hello this is my new blog\n',
-    author: 'author',
-    id: 4
+    "_id": "ObjectId('6591a724a5af322fc51330ad')",
+    "createdAt": "Sun, 31 Dec 2023 17:38:44 GMT",
+    "title": "Another blog",
+    "body": "Hello this is my new blog\n",
+    "author": "author",
+    "id": 4
   }
 ]
 ```

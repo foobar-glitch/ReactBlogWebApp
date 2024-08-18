@@ -10,7 +10,7 @@ function authenticate(session) {
         // Check whether the sent session is contained in the session table
         const rows = await performQuery(
           conn,
-          `SELECT * FROM ${cookie_table_name} WHERE cookieData = \`?\``,
+          `SELECT * FROM ${cookie_table_name} WHERE cookieData = ?`,
           [session.id]
         );
   

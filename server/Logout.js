@@ -16,7 +16,7 @@ async function deleteSessionFromTable(session) {
 
         await performQuery(
             conn,
-            `DELETE FROM ${cookie_table_name} WHERE \`cookieData\` = ?`,
+            `DELETE FROM ${cookie_table_name} WHERE cookieData = ?`,
             [session.id]
         );
         return 1;

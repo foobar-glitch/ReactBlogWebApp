@@ -27,9 +27,6 @@ async function login(username, password, session) {
         `SELECT * FROM ${users_table_name} WHERE username = ? AND password = SHA2(CONCAT(?, ?), 256)`,
         [username, password, salt]
       );
-      console.log("ffa")
-  
-      console.log(rows);
       if (rows.length !== 1) {
         return 0;
       }

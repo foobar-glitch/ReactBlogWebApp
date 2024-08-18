@@ -171,6 +171,17 @@ app.post('/login', (req, res) => {
     });
 })
 
+app.post('/register', (req, res) => {
+    if(!req.session){
+        return res.json(authentication_failed_message);
+    }
+
+    result = get_profile_info(req.session)
+    console.log(result)
+}
+
+)
+
 
 app.get('/get-profile-info', (req, res) => {
     if(!req.session){

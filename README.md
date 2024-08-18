@@ -8,6 +8,19 @@ There are two SQL databases and one NOSQL database. The SQL databases are for lo
 
 ### SQL Databases
 This is the information Schema for the users (table name: 'users'):
+```SQL
+CREATE TABLE users (
+    userId INT(11) NOT NULL AUTO_INCREMENT,
+    username VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    salt VARCHAR(255) NOT NULL,
+    role VARCHAR(255) NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (userId)
+);
+```
+
 | Field      | Type         | Null | Key | Default             | Extra                         |
 |------------|--------------|------|-----|---------------------|-------------------------------|
 | userId     | int(11)      | NO   | PRI | NULL                | auto_increment                |
@@ -20,12 +33,33 @@ This is the information Schema for the users (table name: 'users'):
 
 
 This is the information Schema for the cookie/session handling (table name: cookie_data):
-| Field      | Type         | Null | Key | Default | Extra |
-|------------|--------------|------|-----|---------|-------|
-| sessionId  | varchar(255) | NO   |     | NULL    |       |
-| userId     | int(11)      | NO   | MUL | NULL    |       |
-| createdAt  | datetime     | NO   |     | NULL    |       |
-| expiresAt  | datetime     | NO   |     | NULL    |       |
+
+```SQL
+CREATE TABLE cookie_table (
+    cookieId INT(11) NOT NULL AUTO_INCREMENT,
+    userId INT(11) NOT NULL,
+    cookieData VARCHAR(255) NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    expired_at DATETIME NOT NULL,
+    PRIMARY KEY (cookieId),
+    FOREIGN KEY (userId) REFERENCES users(userId)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+```
+
+| Field      | Type         | Null | Key | Default             | Extra          |
+|------------|--------------|------|-----|---------------------|----------------|
+| cookieId   | int(11)      | NO   | PRI | NULL                | auto_increment |
+| userId     | int(11)      | NO   | MUL | NULL                |                |
+| cookieData | varchar(255) | NO   |     | NULL                |                |
+| created_at | datetime     | NO   |     | current_timestamp() |                |
+| expired_at | datetime     | NO   |     | NULL                |                |
+
+Considering that _6f7f4b9659cbfbe6_ is a salt and _author_ is the password, to create an entry execute the following command:
+``` SQL
+INSERT INTO users (userID, username, password, salt, role, created_at, updated_at) VALUES (3, 'author', SHA2(CONCAT('author','6f7f4b9659cbfbe6'), 256), '6f7f4b9659cbfbe6', 'author', NOW(), NOW());
+```
 
 ### NOSQL Database
 This is how the blog entires are stored as of now:

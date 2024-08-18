@@ -1,5 +1,6 @@
 const { authenticate } = require('./Authenticate');
 const { connectToDatabase, performQuery } = require('./DatabaseConnector');
+const {cookie_table_name, users_table_name} = require('/var/www/private/nodejs/mysqlCredentials')
 
 // Function to login. Set a session in the database
 async function deleteSessionFromTable(session) {
@@ -15,7 +16,7 @@ async function deleteSessionFromTable(session) {
 
         await performQuery(
             conn,
-            "DELETE FROM `cookie_data` WHERE `sessionId` = ?",
+            `DELETE FROM ${cookie_table_name} WHERE \`cookieData\` = ?`,
             [session.id]
         );
         return 1;

@@ -1,5 +1,6 @@
 const { authenticate } = require('./Authenticate');
 const { connectToDatabase, performQuery } = require('./DatabaseConnector');
+const {cookie_table_name, users_table_name} = require('/var/www/private/nodejs/mysqlCredentials')
 
 // Gets all info of user
 async function get_profile_info(session) {
@@ -15,7 +16,7 @@ async function get_profile_info(session) {
 
       const rows = await performQuery(
         conn,
-        "SELECT * FROM `cookie_data` WHERE `sessionId` = ?",
+        `SELECT * FROM ${cookie_table_name} WHERE cookieData = ?`,
         [session.id]
       );
 
@@ -26,7 +27,7 @@ async function get_profile_info(session) {
 
       const profile_data = await performQuery(
         conn,
-        "SELECT * FROM `users` WHERE `userId` = ?",
+        `SELECT * FROM ${users_table_name} WHERE userId = ?`,
         [rows[0].userId]
       )
     

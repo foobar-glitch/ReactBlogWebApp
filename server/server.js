@@ -68,7 +68,7 @@ app.post('/blogs/:id/comments', (req, res) => {
                 result => {
                     console.log(result);
                     //res.json(result)
-                    res.json(
+                    return res.json(
                         {status: 200, message: `User '${profile_data.username}' added a comment to blog`}
                     )
                 }

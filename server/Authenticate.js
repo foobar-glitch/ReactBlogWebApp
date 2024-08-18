@@ -1,4 +1,5 @@
 const { connectToDatabase, performQuery } = require('./DatabaseConnector');
+const {cookie_table_name} = require('/var/www/private/nodejs/mysqlCredentials')
 
 // Checks if session is valid and has a user
 function authenticate(session) {
@@ -9,7 +10,7 @@ function authenticate(session) {
         console.log(session.id);
         const rows = await performQuery(
           conn,
-          "SELECT * FROM `cookie_data` WHERE `sessionId` = ?",
+          `SELECT * FROM ${cookie_table_name} WHERE cookieData = ?`,
           [session.id]
         );
         console.log(rows);
@@ -25,7 +26,7 @@ function authenticate(session) {
           session.destroy();
           await performQuery(
             conn,
-            "DELETE FROM `cookie_data` WHERE userId = ?",
+            `DELETE FROM ${cookie_table_name} WHERE userId = ?`,
             [rows[0].userId]
           );
           resolve(0);

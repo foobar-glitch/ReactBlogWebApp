@@ -13,7 +13,7 @@ This is the information Schema for the users (table name: 'users'):
 | userId     | int(11)      | NO   | PRI | NULL                | auto_increment                |
 | username   | varchar(255) | NO   | UNI | NULL                |                               |
 | password   | varchar(255) | NO   |     | NULL                |                               |
-| salt       | varchar(255) | YES  |     | NULL                |                               |
+| salt       | varchar(255) | NO   |     | NULL                |                               |
 | role       | varchar(255) | NO   |     | NULL                |                               |
 | created_at | datetime     | NO   |     | current_timestamp() |                               |
 | updated_at | datetime     | NO   |     | current_timestamp() | on update current_timestamp() |

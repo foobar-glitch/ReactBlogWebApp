@@ -6,6 +6,7 @@ const { getBlogEntry, createBlogEntry, removeBlogEntry } = require('./BlogDataha
 const { login } = require('./Login');
 const { get_profile_info } = require('./GetProfileInfo');
 const { deleteSessionFromTable } = require('./Logout');
+const cryptoRandomString = require('crypto-random-string');
 
 const app = express();
 app.set('trust proxy', 1)
@@ -15,8 +16,10 @@ const authentication_failed_message = {
     message: "Authentication failed"
 }
 
+const crypto_secret = cryptoRandomString(32)
+console.log(crypto_secret)
 app.use(session({
-	secret: 'secret',
+	secret: crypto_secret,
 	resave: true,
 	saveUninitialized: true,
     cookie: { maxAge: 900000, sameSite: 'None' }
@@ -69,7 +72,10 @@ app.post('/blogs', (req, res) => {
             createBlogEntry(req.body.title, req.body.body, profile_data.username).then(
                 result => {
                     console.log(result);
-                    res.json(result)
+                    //res.json(result)
+                    res.json(
+                        {status: 200, message: `User '${profile_data.username}' added a blog entry`}
+                    )
                 }
             )
         }

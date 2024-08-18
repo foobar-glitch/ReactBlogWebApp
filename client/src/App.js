@@ -6,6 +6,7 @@ import BlogDetails from './components/BlogDetails';
 import NotFound from './components/NotFound';
 import Login from './components/Login';
 import Profile from './components/Profile';
+import Register from './components/Register';
 
 function App() {
   return (
@@ -25,6 +26,9 @@ function App() {
             </Route>
             <Route exact path="/login">
               <Login />
+            </Route>
+            <Route exact path="/register">
+              <Register />
             </Route>
             <Route exact path="/profile">
               <Profile />

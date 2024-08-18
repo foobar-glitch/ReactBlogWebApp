@@ -6,12 +6,23 @@ async function login(username, password, session) {
     try {
       conn = await connectToDatabase();
       const currentTime = new Date();
-  
+
+      const salt_rows = await performQuery(
+        conn, 
+        "SELECT salt FROM `users` WHERE `username` = ?",
+        [username]
+      )
+
+      if(salt_rows.length !== 1){
+        return 0
+      }
+      const salt = salt_rows[0].salt
+      //console.log(`salt of user='${username}' is '${salt}'`)
       // Perform the database query
       const rows = await performQuery(
         conn,
-        "SELECT * FROM `users` WHERE `username` = ? AND `password` = SHA2(?,256)",
-        [username, password]
+        "SELECT * FROM `users` WHERE `username` = ? AND `password` = SHA2(CONCAT(?, ?), 256)",
+        [username, password, salt]
       );
   
       console.log(rows);

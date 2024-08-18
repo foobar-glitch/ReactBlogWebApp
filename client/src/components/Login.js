@@ -57,17 +57,10 @@ const Login = () => {
                     required>
                 </input>
                 {errorMessage && 
-                <div className="error-message"  style={
-                    { 
-                        color: 'red',
-                        fontSize: '13px',
-                        lineHeight: '16px',
-                        textAlign: 'left',
-                        marginBottom: '0.9rem'
-                    }
-                }>{errorMessage}</div>}
+                <div className="error-message">{errorMessage}</div>}
                 <button type="submit">Login</button>
             </form>
+            <div className="noAccount">Not a member yet? Register <a href="/register">here</a></div>
         </div>
     );
 }

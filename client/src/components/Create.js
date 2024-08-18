@@ -10,6 +10,7 @@ const Create = () => {
     const [isPending, setIsPending] = useState(false);
     const history = useHistory();
     const { data: profile_data, isPending: profileFetchingisPending, error } = useFetchGET(authenticate_endpoint, []);
+    const [authencationMessage, setAuthencationMessage] = useState(null);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -30,13 +31,15 @@ const Create = () => {
         }).then((data) => {
             console.log(data);
             setIsPending(false);
-            history.push('/');
+            setAuthencationMessage(data) 
+            //history.push('/');
         })
     }
 
 
     return(
-        <div className="create">
+        <div className="create"> 
+        {authencationMessage &&<div className="authenticationMessage">{authencationMessage.message}</div>}
             <h2>Add a New Blog</h2>
             <form onSubmit={handleSubmit}>
                 <label>Blog Title:</label>
@@ -55,6 +58,7 @@ const Create = () => {
                  {!isPending && <button>Add Block</button>}
                  {isPending && <button disabled>Adding blog ...</button>}
             </form>
+            
         </div>
     );
 }

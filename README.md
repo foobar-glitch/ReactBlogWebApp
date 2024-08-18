@@ -7,18 +7,19 @@ This is a simple react blog with login feature and adding and deleting blog entr
 There are two SQL databases and one NOSQL database. The SQL databases are for login and session handling and the NOSQL database is for comment storage
 
 ### SQL Databases
-This is the information Schema for the users:
+This is the information Schema for the users (table name: 'users'):
 | Field      | Type         | Null | Key | Default             | Extra                         |
 |------------|--------------|------|-----|---------------------|-------------------------------|
 | userId     | int(11)      | NO   | PRI | NULL                | auto_increment                |
 | username   | varchar(255) | NO   | UNI | NULL                |                               |
 | password   | varchar(255) | NO   |     | NULL                |                               |
+| salt       | varchar(255) | YES  |     | NULL                |                               |
 | role       | varchar(255) | NO   |     | NULL                |                               |
 | created_at | datetime     | NO   |     | current_timestamp() |                               |
 | updated_at | datetime     | NO   |     | current_timestamp() | on update current_timestamp() |
 
 
-This is the information Schema for the cookie/session handling:
+This is the information Schema for the cookie/session handling (table name: cookie_data):
 | Field      | Type         | Null | Key | Default | Extra |
 |------------|--------------|------|-----|---------|-------|
 | sessionId  | varchar(255) | NO   |     | NULL    |       |

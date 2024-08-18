@@ -81,6 +81,49 @@
   cursor: pointer;
 }
 
+/* Style for the comment section */
+.comment-section {
+  margin-top: 500px !important; /* Adjust the margin-top as per your requirement */
+}
+
+.comment-section h3 {
+  color: #333;
+}
+
+/* Style for the comment input field */
+.comment-input-container {
+  margin-top: 10px;
+}
+
+.comment-input {
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.comment-input::placeholder {
+  color: #aaa;
+}
+
+.comment-submit {
+  margin-top: 10px;
+  background-color: #3498db;
+  color: #fff;
+  padding: 10px 15px;
+  border: none;
+  cursor: pointer;
+}
+
+.comment-submit:hover {
+  background-color: #2980b9;
+}
+
+/* Style for the comments */
+.comment {
+  margin-top: 20px;
+  color: #555;
+}
+
 /* create new blog form */
 .create {
   max-width: 400px;
@@ -155,4 +198,21 @@
 
 .login button:hover {
   background-color: #45a049;
+}
+
+.login .error-message {
+  color: red;
+  font-size: 13px;
+  line-height: 16px;
+  margin-bottom: 0.9rem;
+}
+
+.login .noAccount {
+  max-width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.login .noAccount a {
+  color: #2980b9;
 }

@@ -43,7 +43,8 @@ async function createBlogEntry(title_val, body_val, author_val){
             title: title_val,
             body: body_val,
             author: author_val,
-            id: ( lastEntryId + 1 )
+            id: ( lastEntryId + 1 ),
+            comments: []
         };
 
         result = await collection.insertOne(newBlog);
@@ -53,6 +54,39 @@ async function createBlogEntry(title_val, body_val, author_val){
         await client.close();
     }
 
+}
+
+async function addCommentToBlogEntry(user, comment, blog_id){
+    try {
+        const entry = await getBlogEntry(blog_id);
+        if(!entry){
+            return 0;
+        }
+        // Do something with the entry
+        console.log(`MY COMMENT ${comment}`)
+        await client.connect();
+        const database = client.db(db_name);
+        const collection = database.collection(collection_name);
+        result = await collection.updateOne(
+            {id: +blog_id}, { $push: {
+                comments: {'username': user, 'comment': comment}
+            }}
+        )
+
+        console.log("My result")
+        console.log(result)
+        if (result.modifiedCount == 1) 
+            console.log('Comment added successfully to blog post.');
+        if (result.modifiedCount > 1){
+            console.log("More than one edited")
+        }
+        if (restult.modifiedCount < 1){
+            console.log('No matching blog post found or comment was not added.');
+        }
+        return result
+      } catch (error) {
+        // Handle the error
+      }
 }
 
 async function removeBlogEntry(id_val){
@@ -73,5 +107,6 @@ async function removeBlogEntry(id_val){
 module.exports = {
     getBlogEntry,
     createBlogEntry,
+    addCommentToBlogEntry,
     removeBlogEntry
 }

@@ -37,7 +37,11 @@ This is how the blog entires are stored as of now:
     "title": "Another blog",
     "body": "adding something new",
     "author": "admin",
-    "id": 3
+    "id": 3,
+    "commtents": [
+      {"username": "user", "comment": "hello"}
+      {"username": "author", "comment": "hi"}
+    ]
   },
   {
     "_id": "ObjectId('6591a724a5af322fc51330ad')",
@@ -45,7 +49,10 @@ This is how the blog entires are stored as of now:
     "title": "Another blog",
     "body": "Hello this is my new blog\n",
     "author": "author",
-    "id": 4
+    "id": 4,
+    "commtents": [
+      {"username": "user", "comment": "hello"}
+    ]
   }
 ]
 ```

@@ -2,7 +2,7 @@
 var session = require('express-session')
 const express = require('express');
 const cors = require('cors');
-const { getBlogEntry, createBlogEntry, removeBlogEntry } = require('./BlogDatahandler');
+const { getBlogEntry, createBlogEntry, addCommentToBlogEntry, removeBlogEntry } = require('./BlogDatahandler');
 const { login } = require('./Login');
 const { get_profile_info } = require('./GetProfileInfo');
 const { deleteSessionFromTable } = require('./Logout');
@@ -52,6 +52,30 @@ app.get('/blogs/:id', (req, res) => {
         }
     )
 });
+
+app.post('/blogs/:id/comments', (req, res) => {
+    if(!req.session){
+        return res.json(authentication_failed_message);
+    }
+
+    get_profile_info(req.session).then(
+        (profile_data) => {
+            if(!profile_data){
+                return res.json(authentication_failed_message)
+            }
+
+            addCommentToBlogEntry(profile_data.username, req.body.comment, req.params.id).then(
+                result => {
+                    console.log(result);
+                    //res.json(result)
+                    res.json(
+                        {status: 200, message: `User '${profile_data.username}' added a comment to blog`}
+                    )
+                }
+            )
+        }
+    )
+})
 
 app.post('/blogs', (req, res) => {
     if(!req.session){

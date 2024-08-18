@@ -1,13 +1,29 @@
-
+import { useState } from "react";
+import { register_endpoint } from "./Universals";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 
 const Register = () => {
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [passwordVerify, setPasswordVerify] = useState('');
 
+    const [errorMessage, setErrorMessage] = useState(null);
 
-
+    const handleRegister = (e) =>{
+        const loginForm = { username, password, passwordVerify};
+        console.log(loginForm)
+        e.preventDefault();
+        fetch(register_endpoint, {
+            method: 'POST',
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(loginForm),
+            credentials: 'include'
+        })
+    }
 
     return (
         <div className="login">
-            <form onSubmit={handleLogin}>
+            <form onSubmit={handleRegister}>
                 <label>Usename: </label>
                 <input type="text" 
                     onChange={(e) => setUsername(e.target.value)}
@@ -21,11 +37,17 @@ const Register = () => {
                     value={password}
                     required>
                 </input>
+                <label>Verify Password: </label>
+                <input 
+                    type="password"  
+                    onChange={(e) => setPasswordVerify(e.target.value)} 
+                    value={passwordVerify}
+                    required>
+                </input>
                 {errorMessage && 
                 <div className="error-message">{errorMessage}</div>}
-                <button type="submit">Login</button>
+                <button type="submit">Sign Up</button>
             </form>
-            <div className="noAccount">Not a member yet? Register <a href="/register">here</a></div>
         </div>
     )
 }

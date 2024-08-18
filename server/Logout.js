@@ -1,6 +1,6 @@
 const { authenticate } = require('./Authenticate');
 const { connectToDatabase, performQuery } = require('./DatabaseConnector');
-const {cookie_table_name, users_table_name} = require('/var/www/private/nodejs/mysqlCredentials')
+const {cookie_table_name} = require('/var/www/private/nodejs/mysqlCredentials')
 
 // Function to login. Set a session in the database
 async function deleteSessionFromTable(session) {

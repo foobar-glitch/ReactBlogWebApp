@@ -4,6 +4,7 @@ const express = require('express');
 const cors = require('cors');
 const { getBlogEntry, createBlogEntry, addCommentToBlogEntry, removeBlogEntry } = require('./BlogDatahandler');
 const { login } = require('./Login');
+const { register } = require('./Register')
 const { get_profile_info } = require('./GetProfileInfo');
 const { deleteSessionFromTable } = require('./Logout');
 const cryptoRandomString = require('crypto-random-string');
@@ -175,11 +176,16 @@ app.post('/register', (req, res) => {
     if(!req.session){
         return res.json(authentication_failed_message);
     }
-
-    result = get_profile_info(req.session)
-    console.log(result)
-}
-
+    if(req.body.password != req.body.passwordVerify){
+        console.log("Non matching passwords")
+        return res.json({status: 400, message: 'Passwords dont match'});
+    }
+    
+    register(req.body.username, req.body.password).then(
+        (result) => {
+            console.log(result);
+        }
+    )}
 )
 
 

@@ -39,9 +39,7 @@ async function login(username, password, session) {
         `DELETE FROM ${cookie_table_name} WHERE userId = ?`,
         [rows[0].userId]
       );
-      console.log("MY SESSION")
-      console.log(session)
-      console.log(session.id)
+      // After login insert the session cookie for authentication
       await performQuery(
         conn,
         `INSERT ${cookie_table_name} (userId, cookieData, created_at, expired_at) VALUES (?, ?, ?, ?)`,

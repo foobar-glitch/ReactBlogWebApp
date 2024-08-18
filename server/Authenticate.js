@@ -7,13 +7,12 @@ function authenticate(session) {
       let conn;
       try {
         conn = await connectToDatabase();
-        console.log(session.id);
+        // Check whether the sent session is contained in the session table
         const rows = await performQuery(
           conn,
-          `SELECT * FROM ${cookie_table_name} WHERE cookieData = ?`,
+          `SELECT * FROM ${cookie_table_name} WHERE cookieData = \`?\``,
           [session.id]
         );
-        console.log(rows);
   
         if (rows.length !== 1) {
           resolve(0);

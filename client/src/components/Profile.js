@@ -1,4 +1,4 @@
-import { authenticate_endpoint, logout_endpoint } from "./Universals";
+import { profile_data_endpoint, logout_endpoint } from "./Universals";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import useFetchGET from "./useFetchGET";
 
@@ -45,7 +45,7 @@ const Profile = () => {
     
 
 
-    const { data: profile_data, isPending, error } = useFetchGET(authenticate_endpoint, []);
+    const { data: profile_data, isPending, error } = useFetchGET(profile_data_endpoint, []);
     return(
         <div className="profile">
             {profile_data && displayInfo(profile_data)}

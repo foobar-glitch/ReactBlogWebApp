@@ -18,6 +18,7 @@ const Navbar = () => {
     }
     
     const { data: profile_data, isPending, error } = useFetchGET(authenticate_endpoint);
+    console.log(error);
     return (
         <nav className="navbar">
             <h1>The Blog</h1>

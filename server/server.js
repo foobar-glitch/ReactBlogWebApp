@@ -3,10 +3,7 @@ var session = require('express-session')
 const express = require('express');
 const cors = require('cors');
 const { getBlogEntry, createBlogEntry, addCommentToBlogEntry, removeBlogEntry } = require('./BlogDatahandler');
-const { login } = require('./Login');
-const { register } = require('./Register')
-const { get_profile_info } = require('./GetProfileInfo');
-const { deleteSessionFromTable } = require('./Logout');
+const { User } = require('./User');
 const cryptoRandomString = require('crypto-random-string');
 
 const app = express();
@@ -30,8 +27,28 @@ app.use(cors({
     origin: 'http://localhost:3000', // Replace with the actual origin of your frontend
     credentials: true
 }));
+
 app.use(express.json());
-  
+
+
+app.get('/authenticate', async (req, res) => {
+    const user = new User();
+    await user.initialize_db();
+    const user_id = await user.get_username_from_session(req.session);
+    if(!user_id){
+        res.json({
+            status: 401,
+            message: "Authentication failed"
+        })
+    }else{
+        res.json({
+            status: 200,
+            message: "Authentication successful"
+        })
+    }
+
+})
+
 app.get('/blogs', (req, res) => {
     //console.log(req.session.id)
     getBlogEntry().then(
@@ -54,125 +71,94 @@ app.get('/blogs/:id', (req, res) => {
     )
 });
 
-app.post('/blogs/:id/comments', (req, res) => {
+app.post('/blogs/:id/comments', async (req, res) => {
     if(!req.session){
         return res.json(authentication_failed_message);
     }
-
-    get_profile_info(req.session).then(
-        (profile_data) => {
-            if(!profile_data){
-                return res.json(authentication_failed_message)
-            }
-
-            addCommentToBlogEntry(profile_data.username, req.body.comment, req.params.id).then(
-                result => {
-                    console.log(result);
-                    //res.json(result)
-                    return res.json(
-                        {status: 200, message: `User '${profile_data.username}' added a comment to blog`}
-                    )
-                }
-            )
-        }
+    const user = new User();
+    await user.initialize_db();
+    const profile_data = await user.get_profile_info(req.session);
+    if(!profile_data){
+        return res.json(authentication_failed_message);
+    }
+    const result = await addCommentToBlogEntry(profile_data.username, req.body.comment, req.params.id);
+    // TODO: result check
+    res.json(
+        {status: 200, message: `User '${profile_data.username}' added a comment to blog`}
     )
 })
 
-app.post('/blogs', (req, res) => {
+app.post('/blogs', async (req, res) => {
     if(!req.session){
         return res.json(authentication_failed_message);
     }
-
-    get_profile_info(req.session).then(
-        (profile_data) => {
-            if(!profile_data){
-                console.log("Failed authentication")
-                return res.json(authentication_failed_message);
-            }
-            if(profile_data.role !== "admin" && profile_data.role !== "author"){
-                console.log("Failed privilege check")
-                return res.json({status: 404, message: "No authority to add blog entry"});
-            }
-            console.log("creating entry")
-            createBlogEntry(req.body.title, req.body.body, profile_data.username).then(
-                result => {
-                    console.log(result);
-                    //res.json(result)
-                    res.json(
-                        {status: 200, message: `User '${profile_data.username}' added a blog entry`}
-                    )
-                }
-            )
-        }
-    )
-});
-
-app.delete('/blogs/:id', (req, res) => {
-    if(!req.session){
+    const user = new User();
+    await user.initialize_db();
+    const profile_data = await user.get_profile_info(req.session);
+    if(!profile_data){
         return res.json(authentication_failed_message);
     }
-
-    get_profile_info(req.session).then(
-        (profile_data) => {
-            if(!profile_data){
-                console.log("Failed authentication");
-                return res.json(authentication_failed_message);
-            }
-            getBlogEntry(req.params.id).then(
-                (entries) => {
-                    if(!entries){
-                        return res.json({status: 404, message: "ID not found"})
-                    }
-                    // delete only the user is the author or when it is an admin
-                    if(entries.author === profile_data.username || profile_data.role == "admin"){
-                        console.log("Valid user");
-                        removeBlogEntry(req.params.id).then(
-                            deleteResult => {
-                                console.log(deleteResult);
-                                return res.json(deleteResult);
-                            }
-                        )
-                    }else{
-                        console.log("Invalid User")
-                        return res.json({status: 404, message: "Invalid User"});
-                    }       
-                }
-            )
-        }
-    )
-
-    
-
-});
-
-
-app.post('/login', (req, res) => {
-    login(req.body.username, req.body.password, req.session)
-    .then((result) => {
-        if (result === 1) {
-          console.log("Login successful");
-          res.json({
-            status: 200,
-            message: 'Login successful',
-          });
-        } else {
-          console.log("Login unsuccessful");
-          res.json({
+    if(profile_data.role !== "admin" && profile_data.role !== "author"){
+        return res.json({
             status: 404,
-            message: 'Username or Password invalid',
-          });
-        }
+            message: "No authority to add entry."
+        })
+    }
+    const result = await createBlogEntry(req.body.title, req.body.body, profile_data.username)
+    res.json({
+        status: 200, message: `User '${profile_data.username}' added a blog entry`
     })
-    .catch((error) => {
-        console.error("Error:", error);
+});
+
+app.delete('/blogs/:id', async (req, res) => {
+    if(!req.session){
+        return res.json(authentication_failed_message);
+    }
+
+    const user = new User();
+    await user.initialize_db();
+    const profile_data = await user.get_profile_info(req.session);
+    if(!profile_data){
+        return res.json(authentication_failed_message);
+    }
+    const entries = await getBlogEntry(req.params.id);
+    if(!entries){
+        return res.json({
+            status: 404,
+            message: "ID not found"
+        })
+    }
+    if(entries.author == profile_data.username || profile_data.role == "admin"){
+        const deleteResult = await removeBlogEntry(req.params.id);
+        return res.json({
+            status: 200,
+            message: deleteResult
+        })
+
+    }else{
+        return res.json({status: 404, message: "Invalid User"});
+    }
+});
+
+
+app.post('/login', async (req, res) => {
+    const user = new User();
+    await user.initialize_db()
+    const result = await user.login(req.body.username, req.body.password, req.session)
+    if(result === 1){
         res.json({
-            status: 505,
-            message: 'Server Error',
-        });
-    });
+            status: 200,
+            message: 'Login successful'
+        })
+    }else{
+        res.json({
+            status: 404,
+            message: 'Password or Username incorrect'
+        })
+    }
 })
 
-app.post('/register', (req, res) => {
+app.post('/register', async (req, res) => {
     if(!req.session){
         return res.json(authentication_failed_message);
     }
@@ -181,46 +167,45 @@ app.post('/register', (req, res) => {
         return res.json({status: 400, message: 'Passwords dont match'});
     }
     
-    register(req.body.username, req.body.password).then(
-        (result) => {
-            console.log(result);
-        }
-    )}
-)
+    const user = new User();
+    await user.initialize_db();
+    const result = await user.register(req.body.username, req.body.password);
+    console.log(result);
+}) 
 
 
-app.get('/get-profile-info', (req, res) => {
+app.get('/get-profile-info', async (req, res) => {
     if(!req.session){
         return res.json(authentication_failed_message);
     }
-    
-    get_profile_info(req.session)
-    .then((result) => {
-        if(result){
-            res.json({status:200, message: result});
-        }else{
-            res.json(authentication_failed_message);
-        }
-    })
+    const user = new User();
+    await user.initialize_db();
+    const profile_data = await user.get_profile_info(req.session);
+    if(profile_data){
+        res.json({status:200, message: profile_data});
+    }else{
+        res.json(authentication_failed_message);
+    }    
 })
 
 
-app.get('/logout', (req, res) => {
+app.get('/logout', async (req, res) => {
     logout_failed_message = {
         status: 404,
         message: "Logout failed"
     }
+
     if(!req.session){
         return res.json(logout_failed_message);   
     }
-    deleteSessionFromTable(req.session)
-    .then((result) => {
-        req.session.destroy();
-        if(result){
-            return res.json({status: 200, message: 'Logout successful'})
-        }
-        return res.json(logout_failed_message)
-    })
+    const user = new User();
+    await user.initialize_db();
+    const result = user.logout(req.session)
+
+    if(result){
+        return res.json({status: 200, message: 'Logout successful'})
+    }
+    return res.json(logout_failed_message)
 })
 
 

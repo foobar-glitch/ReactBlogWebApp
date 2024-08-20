@@ -2,7 +2,7 @@ const { connectToDatabase, performQuery } = require('./DatabaseConnector');
 const { cookie_table_name, users_table_name } = require('/var/www/private/nodejs/mysqlCredentials')
 const crypto = require('crypto');
 
-class User{
+class Authenticator{
 
     constructor(){
         this.db_connection = null;
@@ -181,5 +181,5 @@ class User{
 
 
 module.exports = {
-    User
+    Authenticator
 }

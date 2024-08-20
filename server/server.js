@@ -3,7 +3,7 @@ var session = require('express-session')
 const express = require('express');
 const cors = require('cors');
 const { getBlogEntry, createBlogEntry, addCommentToBlogEntry, removeBlogEntry } = require('./BlogDatahandler');
-const { User } = require('./User');
+const { Authenticator } = require('./User');
 const cryptoRandomString = require('crypto-random-string');
 
 const app = express();
@@ -32,7 +32,7 @@ app.use(express.json());
 
 
 app.get('/authenticate', async (req, res) => {
-    const user = new User();
+    const user = new Authenticator();
     await user.initialize_db();
     const user_id = await user.get_username_from_session(req.session);
     if(!user_id){
@@ -75,7 +75,7 @@ app.post('/blogs/:id/comments', async (req, res) => {
     if(!req.session){
         return res.json(authentication_failed_message);
     }
-    const user = new User();
+    const user = new Authenticator();
     await user.initialize_db();
     const profile_data = await user.get_profile_info(req.session);
     if(!profile_data){
@@ -92,7 +92,7 @@ app.post('/blogs', async (req, res) => {
     if(!req.session){
         return res.json(authentication_failed_message);
     }
-    const user = new User();
+    const user = new Authenticator();
     await user.initialize_db();
     const profile_data = await user.get_profile_info(req.session);
     if(!profile_data){
@@ -115,7 +115,7 @@ app.delete('/blogs/:id', async (req, res) => {
         return res.json(authentication_failed_message);
     }
 
-    const user = new User();
+    const user = new Authenticator();
     await user.initialize_db();
     const profile_data = await user.get_profile_info(req.session);
     if(!profile_data){
@@ -142,7 +142,7 @@ app.delete('/blogs/:id', async (req, res) => {
 
 
 app.post('/login', async (req, res) => {
-    const user = new User();
+    const user = new Authenticator();
     await user.initialize_db()
     const result = await user.login(req.body.username, req.body.password, req.session)
     if(result === 1){
@@ -167,7 +167,7 @@ app.post('/register', async (req, res) => {
         return res.json({status: 400, message: 'Passwords dont match'});
     }
     
-    const user = new User();
+    const user = new Authenticator();
     await user.initialize_db();
     const result = await user.register(req.body.username, req.body.password);
     console.log(result);
@@ -178,7 +178,7 @@ app.get('/get-profile-info', async (req, res) => {
     if(!req.session){
         return res.json(authentication_failed_message);
     }
-    const user = new User();
+    const user = new Authenticator();
     await user.initialize_db();
     const profile_data = await user.get_profile_info(req.session);
     if(profile_data){
@@ -198,7 +198,7 @@ app.get('/logout', async (req, res) => {
     if(!req.session){
         return res.json(logout_failed_message);   
     }
-    const user = new User();
+    const user = new Authenticator();
     await user.initialize_db();
     const result = user.logout(req.session)
 

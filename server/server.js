@@ -251,9 +251,15 @@ app.post('/forgot', async (req, res) => {
     const sql_handler = new SqlHandler();
     await sql_handler.initialize_db();
     await sql_handler.forgot_password(email)
+})
 
+app.get('/forgot/reset', async (req, res) => {
+    console.log("entering");
+    const token = req.query.token;
+    console.log(token)
+    // create a front and entry for that parses the
+    // check if token is correct in the db if it is let the user change the password
     
-
 })
 
 

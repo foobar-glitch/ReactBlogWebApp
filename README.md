@@ -7,6 +7,8 @@ This is a simple react blog with login feature and adding and deleting blog entr
 There are two SQL databases and one NOSQL database. The SQL databases are for login and session handling and the NOSQL database is for comment storage
 
 ### SQL Databases
+
+#### Table users
 This is the information Schema for the users (table name: 'users'):
 ```SQL
 CREATE TABLE users (
@@ -21,6 +23,7 @@ CREATE TABLE users (
 );
 ```
 
+
 | Field      | Type         | Null | Key | Default             | Extra                         |
 |------------|--------------|------|-----|---------------------|-------------------------------|
 | userId     | int(11)      | NO   | PRI | NULL                | auto_increment                |
@@ -31,7 +34,7 @@ CREATE TABLE users (
 | created_at | datetime     | NO   |     | current_timestamp() |                               |
 | updated_at | datetime     | NO   |     | current_timestamp() | on update current_timestamp() |
 
-
+#### Table cookie_data
 This is the information Schema for the cookie/session handling (table name: cookie_data):
 
 ```SQL
@@ -61,7 +64,7 @@ Considering that _6f7f4b9659cbfbe6_ is a salt and _author_ is the password, to c
 INSERT INTO users (userID, username, password, salt, role, created_at, updated_at) VALUES (3, 'author', SHA2(CONCAT('author','6f7f4b9659cbfbe6'), 256), '6f7f4b9659cbfbe6', 'author', NOW(), NOW());
 ```
 
-## Reset Table
+#### Table reset_table
 
 ``` SQL
 CREATE TABLE reset_table (

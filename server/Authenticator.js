@@ -1,5 +1,5 @@
 const { connectToDatabase, performQuery } = require('./DatabaseConnector');
-const { cookie_table_name, users_table_name } = require('/var/www/private/nodejs/mysqlCredentials')
+const { cookie_table_name, users_table_name, reset_table_name } = require('/var/www/private/nodejs/mysqlCredentials')
 const crypto = require('crypto');
 
 class SqlHandler{
@@ -74,6 +74,7 @@ class SqlHandler{
             `SELECT * FROM ${users_table_name} WHERE username = ?`,
             [username]
         );
+
         const taken_emails = await performQuery(
             db_connection,
             `SELECT * FROM ${users_table_name} WHERE email = ?`,
@@ -189,14 +190,55 @@ class SqlHandler{
 
 
     async forgot_password(email){
-        const db_connection = self.db_connection;
+        const db_connection = this.db_connection;
 
-        const rows = await performQuery(
+        const email_entry = await performQuery(
             db_connection,
-            `SELECT * FROM ${users_table_name} WHERE username = ?`,
+            `SELECT * FROM ${users_table_name} WHERE email = ?`,
             [email]
         );
+        if(email_entry.length !== 1){
+            console.log("E-Mail is not registered yet");
+            return 100;
+        }
 
+        console.log(email_entry[0])
+        // if token for email already exists overwrite token
+        
+        const token_exist = await performQuery(
+            db_connection,
+            `DELETE FROM ${reset_table_name} WHERE userId = ?`,
+            [email_entry[0].userId]
+        )
+
+
+        const currentTime = new Date();
+        const nextDayTime = new Date(currentTime.getTime() + 24 * 60 * 60 * 1000);
+        const sql_current_time = currentTime.toISOString().slice(0, 19).replace('T', ' ');
+        const sql_next_day_time = nextDayTime.toISOString().slice(0, 19).replace('T', ' ');
+
+        // Create random reset token
+        const reset_token = crypto.randomBytes(16).toString('hex');
+
+        // Create a rest entry
+        const reset_entry = await performQuery(
+            db_connection,
+            `INSERT INTO ${reset_table_name} (userId, resetToken, created_at, expired_at) VALUES (?, ?, ?, ?)`,
+            [email_entry[0].userId, reset_token, sql_current_time, sql_next_day_time]
+        )
+
+        if(reset_entry.affectedRows == 1){
+            console.log("Creating user succeded");
+            return 0;
+        }
+        if(reset_entry.affectedRows < 1){
+            console.log("Nothing changed user not added.");
+            return 1;
+        }
+        if(reset_entry.affectedRows > 1){
+            throw Error("Server error more than one entry changed!!");
+        }
+        //TODO send token via email as /forgot?token=random_token
 
     }
 }

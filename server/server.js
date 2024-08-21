@@ -240,18 +240,19 @@ app.get('/logout', async (req, res) => {
 
 
 app.post('/forgot', async (req, res) => {
-    const mail = req.body.email
-    if(!isEmailValid(mail)){
+    const email = req.body.email
+    if(!isEmailValid(email)){
         return res.json({
             status: 400,
             message: "This E-Mail invalid"
-    })
+        })
+    }
 
     const sql_handler = new SqlHandler();
-    sql_handler.initialize_db();
-    
+    await sql_handler.initialize_db();
+    await sql_handler.forgot_password(email)
 
-    }
+    
 
 })
 

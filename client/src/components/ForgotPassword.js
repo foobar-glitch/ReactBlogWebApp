@@ -29,7 +29,7 @@ const ForgotPassword = () => {
                 </input>
                 {errorMessage && 
                 <div className="error-message">{errorMessage}</div>}
-                <button type="submit">Sign Up</button>
+                <button type="submit">Reset Password</button>
             </form>
         </div>
     )

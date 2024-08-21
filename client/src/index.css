@@ -160,36 +160,36 @@
 
 /*Login page*/
 
-.login,.register {
+.login,.register,.resetpass {
   background-color: #fff;
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-.login h2, .register h2 {
+.login h2, .register h2, .resetpass h2{
   text-align: center;
   color: #333;
 }
 
-.login form, .register form {
+.login form, .register form, .resetpass form {
   display: flex;
   flex-direction: column;
 }
 
-.login label, .register label {
+.login label, .register label, .resetpass label{
   margin-bottom: 8px;
   color: #555;
 }
 
-.login input, .register input {
+.login input, .register input, .resetpass input {
   padding: 10px;
   margin-bottom: 16px;
   border: 1px solid #ddd;
   border-radius: 4px;
 }
 
-.login button, .register button {
+.login button, .register button, .resetpass button {
   padding: 12px;
   background-color: #f1356d;
   color: #fff;

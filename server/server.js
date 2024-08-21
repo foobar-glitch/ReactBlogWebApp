@@ -250,16 +250,87 @@ app.post('/forgot', async (req, res) => {
 
     const sql_handler = new SqlHandler();
     await sql_handler.initialize_db();
-    await sql_handler.forgot_password(email)
+    const ret = await sql_handler.forgot_password(email);
+    if(ret === 1){
+        return res.json({
+            status: 500,
+            message: "Server error could not create token"
+        })
+    }
+    if(ret === 0 || ret === 100){
+        return res.json({
+            status: 200,
+            message: "If this E-Mail exists you will receive an E-mail"
+        })
+    }
 })
 
 app.get('/forgot/reset', async (req, res) => {
-    console.log("entering");
     const token = req.query.token;
-    console.log(token)
-    // create a front and entry for that parses the
-    // check if token is correct in the db if it is let the user change the password
+    const sql_handler = new SqlHandler()
+    await sql_handler.initialize_db()
+    const useId_of_token = await sql_handler.forgot_password_validate_token(token)
+    console.log(useId_of_token);
+    if(useId_of_token === null){
+        return res.json({
+            status: 400,
+            message: "This token is invalid"
+        })
+    }
+    if(useId_of_token === -1){
+        return res.json({
+            status: 404,
+            message: "Expired token."
+        })
+    }
+    return res.json({
+        status: 202,
+        message: "Token is correct. Reset password now."+useId_of_token
+    })
     
+})
+
+app.post('/forgot/reset', async (req, res) => {
+    console.log(req.body)
+    const token = req.body.token;
+    const password = req.body.password
+    const verifyPassword = req.body.verifyPassword
+
+    if(password !== verifyPassword){
+        return res.json({
+            status: 400,
+            message: "Sent passwords do not match"
+        })
+    }
+
+    const sql_handler = new SqlHandler()
+    await sql_handler.initialize_db()
+    const useId_of_token = await sql_handler.forgot_password_validate_token(token)
+    if(useId_of_token === null){
+        return res.json({
+            status: 404,
+            message: "Sent Token is invalid"
+        })
+    }
+    if(useId_of_token === -1){
+        return res.json({
+            status: 404,
+            message: "Token expired."
+        })
+    }
+
+    ret_code = await sql_handler.reset_password_with_userId(useId_of_token, password);
+    if(ret_code === 0){
+        return res.json({
+            status: 200,
+            message: "Successfully reset password"
+        })
+    }else{
+        return res.json({
+            status: 500,
+            message: "Could not reset user",
+        })
+    }
 })
 
 

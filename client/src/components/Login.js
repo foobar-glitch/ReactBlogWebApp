@@ -12,7 +12,7 @@ const Login = () => {
 
     const handleLogin = (e) => {
         e.preventDefault();
-        const loginForm = { username, password};
+        const loginForm = { username, password };
         
         fetch(login_endpoint, {
             method: 'POST',

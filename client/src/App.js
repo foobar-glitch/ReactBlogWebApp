@@ -8,6 +8,7 @@ import Login from './components/Login';
 import Profile from './components/Profile';
 import Register from './components/Register';
 import ForgotPassword from './components/ForgotPassword';
+import ResetByToken from './components/ResetByToken'
 
 function App() {
   return (
@@ -33,6 +34,9 @@ function App() {
             </Route>
             <Route exact path="/forgot">
               <ForgotPassword />
+            </Route>
+            <Route exact path="/forgot/reset">
+              <ResetByToken />
             </Route>
             <Route exact path="/profile">
               <Profile />

@@ -191,16 +191,22 @@ class SqlHandler{
 
     async forgot_password(email){
         const db_connection = this.db_connection;
+        this.check_db_initialized();
 
         const email_entry = await performQuery(
             db_connection,
             `SELECT * FROM ${users_table_name} WHERE email = ?`,
             [email]
         );
-        if(email_entry.length !== 1){
+        if(email_entry.length < 1){
             console.log("E-Mail is not registered yet");
             return 100;
         }
+        if(email_entry.length > 1){
+            console.log("E-Mail more than once in database. Should not be");
+            throw Error("Email is multiple times in databank")
+        }
+
 
         console.log(email_entry[0])
         // if token for email already exists overwrite token
@@ -214,21 +220,21 @@ class SqlHandler{
 
         const currentTime = new Date();
         const nextDayTime = new Date(currentTime.getTime() + 24 * 60 * 60 * 1000);
-        const sql_current_time = currentTime.toISOString().slice(0, 19).replace('T', ' ');
-        const sql_next_day_time = nextDayTime.toISOString().slice(0, 19).replace('T', ' ');
 
         // Create random reset token
         const reset_token = crypto.randomBytes(16).toString('hex');
 
-        // Create a rest entry
+        // Create a reset entry
         const reset_entry = await performQuery(
             db_connection,
-            `INSERT INTO ${reset_table_name} (userId, resetToken, created_at, expired_at) VALUES (?, ?, ?, ?)`,
-            [email_entry[0].userId, reset_token, sql_current_time, sql_next_day_time]
+            `INSERT INTO ${reset_table_name} (userId, resetToken, created_at, expired_at) VALUES (?, SHA2(?, 256), ?, ?)`,
+            [email_entry[0].userId, reset_token, currentTime, nextDayTime]
         )
 
         if(reset_entry.affectedRows == 1){
-            console.log("Creating user succeded");
+            // Currently not sending to E-Mail
+            console.log(`Creating reset entry succeded with token: '${reset_token}'`);
+            console.log(`visit: '/forgot/reset?token=${reset_token}' to reset the password`)
             return 0;
         }
         if(reset_entry.affectedRows < 1){
@@ -239,6 +245,71 @@ class SqlHandler{
             throw Error("Server error more than one entry changed!!");
         }
         //TODO send token via email as /forgot?token=random_token
+
+    }
+
+    async forgot_password_validate_token(token){
+        this.check_db_initialized();
+        const db_connection = this.db_connection;
+
+        const reset_entry = await performQuery(
+            db_connection,
+            `SELECT * FROM ${reset_table_name} WHERE resetToken = SHA2(?, 256)`,
+            [token]
+        )
+        console.log(reset_entry)
+        if(reset_entry.length < 1){
+            //console.log("Entry not found")
+            return null;
+        }
+        if(reset_entry.length > 1){
+            throw Error("Server error more than one entry for token")
+        }
+
+        const currentTime = new Date();
+
+        if(reset_entry[0].expired_at < currentTime){
+            // Delete resetToken from table
+            console.log("Expired time")
+            await performQuery(
+                db_connection,
+                `DELETE FROM ${reset_table_name} WHERE resetId=${reset_entry[0].resetId}`
+            )
+            return -1
+        }
+
+        return reset_entry[0].userId
+    }
+
+    async reset_password_with_userId(userId, newpassword){
+        this.check_db_initialized();
+        const db_connection = this.db_connection;
+        // delete token with userID
+        await performQuery(
+            db_connection,
+            `DELETE FROM ${reset_table_name} WHERE userId=?`,
+            [userId]
+        )
+        
+        const salt = crypto.randomBytes(8).toString('hex').slice(0, 16);
+
+        const create_table = await performQuery(
+            db_connection,
+            `UPDATE ${users_table_name} SET password = SHA2(?, 256), salt = ? WHERE userId = ?;`,
+            [newpassword.concat(salt), salt, userId]
+        )
+
+        if(create_table.affectedRows < 1){
+            return -1
+        }
+        if(create_table.affectedRows > 1){
+            // Changed more than one field
+            throw Error("Server Error deleted data")
+        }
+        return 0;
+        
+
+
 
     }
 }

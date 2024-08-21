@@ -61,6 +61,8 @@ Considering that _6f7f4b9659cbfbe6_ is a salt and _author_ is the password, to c
 INSERT INTO users (userID, username, password, salt, role, created_at, updated_at) VALUES (3, 'author', SHA2(CONCAT('author','6f7f4b9659cbfbe6'), 256), '6f7f4b9659cbfbe6', 'author', NOW(), NOW());
 ```
 
+## Reset Table
+
 ``` SQL
 CREATE TABLE reset_table (
     resetId INT(11) NOT NULL AUTO_INCREMENT,
@@ -76,7 +78,7 @@ CREATE TABLE reset_table (
 
 ```
 
-## Reset Table
+
 
 | Field       | Type         | Null | Key | Default             | Extra          |
 |-------------|--------------|------|-----|---------------------|----------------|

@@ -4,13 +4,14 @@ import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 
 const Register = () => {
     const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [passwordVerify, setPasswordVerify] = useState('');
 
     const [errorMessage, setErrorMessage] = useState(null);
 
     const handleRegister = (e) =>{
-        const loginForm = { username, password, passwordVerify};
+        const loginForm = { username, email, password, passwordVerify};
         console.log(loginForm)
         e.preventDefault();
         fetch(register_endpoint, {
@@ -22,7 +23,7 @@ const Register = () => {
     }
 
     return (
-        <div className="login">
+        <div className="register">
             <form onSubmit={handleRegister}>
                 <label>Usename: </label>
                 <input type="text" 
@@ -30,6 +31,13 @@ const Register = () => {
                     value={username} 
                     required>
                 </input>
+                <label>E-Mail: </label>
+                <input type="email" 
+                    onChange={(e) => setEmail(e.target.value)}
+                    value={email} 
+                    required>
+                </input>
+
                 <label>Password: </label>
                 <input 
                     type="password"  

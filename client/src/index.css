@@ -139,6 +139,7 @@
   color: #f1356d;
   margin-bottom: 30px;
 }
+
 .create input, .create textarea, .create select {
   width: 100%;
   padding: 6px 10px;
@@ -147,6 +148,7 @@
   box-sizing: border-box;
   display: block;
 }
+
 .create button {
   background: #f1356d;
   color: #fff;
@@ -158,36 +160,36 @@
 
 /*Login page*/
 
-.login {
+.login,.register {
   background-color: #fff;
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-.login h2 {
+.login h2, .register h2 {
   text-align: center;
   color: #333;
 }
 
-.login form {
+.login form, .register form {
   display: flex;
   flex-direction: column;
 }
 
-.login label {
+.login label, .register label {
   margin-bottom: 8px;
   color: #555;
 }
 
-.login input {
+.login input, .register input {
   padding: 10px;
   margin-bottom: 16px;
   border: 1px solid #ddd;
   border-radius: 4px;
 }
 
-.login button {
+.login button, .register button {
   padding: 12px;
   background-color: #f1356d;
   color: #fff;
@@ -196,23 +198,68 @@
   cursor: pointer;
 }
 
-.login button:hover {
+.login button:hover, .register button:hover {
   background-color: #45a049;
 }
 
-.login .error-message {
+.login .error-message, .register .error-message {
   color: red;
   font-size: 13px;
   line-height: 16px;
   margin-bottom: 0.9rem;
 }
 
-.login .noAccount {
-  max-width: fit-content;
-  margin-left: auto;
-  margin-right: auto;
+
+.login {
+  display: flex;
+  justify-content: space-between; /* Align items to the left and right */
+  padding: 20px; /* Add some padding around the container */
 }
 
-.login .noAccount a {
-  color: #2980b9;
+
+.signIn {
+  flex: 1; /* Allow signIn to take up available space */
+  padding-right: 10%; /* Add some space between signIn and signUp */
 }
+
+.login .signIn .options{
+  font-size: smaller;
+  padding-bottom: 5%;
+}
+
+.login .signIn .resetpassword{
+  float: right;
+}
+
+.login .signIn .resetpassword a{
+  color: blue;
+  text-decoration: none;
+}
+
+.login .signIn .resetpassword a:hover{
+  text-decoration: underline;
+}
+
+.login .signIn .remember{
+  float:  left;
+}
+
+
+.signUp {
+  flex: 1; /* Allow signUp to take up available space */
+  align-items: center;
+  justify-content: center;
+  text-align: center; 
+  margin: auto;
+  background-color: beige;
+  padding-block-end: 5%;
+  padding-top: 5%;
+}
+
+.signUp button {
+  margin-top: 50%;
+  border-radius: 15%; /* Use 50% for round shape */
+  cursor: pointer;
+  background-color: orange;
+}
+

@@ -61,6 +61,31 @@ Considering that _6f7f4b9659cbfbe6_ is a salt and _author_ is the password, to c
 INSERT INTO users (userID, username, password, salt, role, created_at, updated_at) VALUES (3, 'author', SHA2(CONCAT('author','6f7f4b9659cbfbe6'), 256), '6f7f4b9659cbfbe6', 'author', NOW(), NOW());
 ```
 
+``` SQL
+CREATE TABLE reset_table (
+    resetId INT(11) NOT NULL AUTO_INCREMENT,
+    userId INT(11) NOT NULL,
+    resetToken VARCHAR(255) NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    expired_at DATETIME NOT NULL,
+    PRIMARY KEY (resetId),
+    FOREIGN KEY (userId) REFERENCES users(userId)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
+```
+
+## Reset Table
+
+| Field       | Type         | Null | Key | Default             | Extra          |
+|-------------|--------------|------|-----|---------------------|----------------|
+| resetId     | int(11)      | NO   | PRI | NULL                | auto_increment |
+| userId      | int(11)      | NO   | MUL | NULL                |                |
+| resetToken  | varchar(255) | NO   |     | NULL                |                |
+| created_at  | datetime     | NO   |     | current_timestamp() |                |
+| expired_at  | datetime     | NO   |     | NULL                |                |
+
 ### NOSQL Database
 This is how the blog entires are stored as of now:
 ``` json

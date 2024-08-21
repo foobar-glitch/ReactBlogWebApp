@@ -7,6 +7,7 @@ import NotFound from './components/NotFound';
 import Login from './components/Login';
 import Profile from './components/Profile';
 import Register from './components/Register';
+import ForgotPassword from './components/ForgotPassword';
 
 function App() {
   return (
@@ -29,6 +30,9 @@ function App() {
             </Route>
             <Route exact path="/register">
               <Register />
+            </Route>
+            <Route exact path="/forgot">
+              <ForgotPassword />
             </Route>
             <Route exact path="/profile">
               <Profile />

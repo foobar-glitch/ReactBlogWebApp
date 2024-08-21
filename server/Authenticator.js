@@ -2,7 +2,7 @@ const { connectToDatabase, performQuery } = require('./DatabaseConnector');
 const { cookie_table_name, users_table_name } = require('/var/www/private/nodejs/mysqlCredentials')
 const crypto = require('crypto');
 
-class Authenticator{
+class SqlHandler{
 
     constructor(){
         this.db_connection = null;
@@ -40,8 +40,8 @@ class Authenticator{
         // Perform the database query
         const rows = await performQuery(
             db_connection,
-            `SELECT * FROM ${users_table_name} WHERE username = ? AND password = SHA2(CONCAT(?, ?), 256)`,
-            [username, password, sql_salt]
+            `SELECT * FROM ${users_table_name} WHERE username = ? AND password = SHA2(?, 256)`,
+            [username, password.concat(sql_salt)]
         );
         if (rows.length !== 1) {
             return 0;
@@ -63,28 +63,39 @@ class Authenticator{
 
     }
 
-    async register(username, password){
+    async register(username, password, email){
         const db_connection = this.db_connection;
         const user_role = 'user'
         this.check_db_initialized();
 
         // check if username already taken
-        const rows = await performQuery(
+        const taken_usernames = await performQuery(
             db_connection,
             `SELECT * FROM ${users_table_name} WHERE username = ?`,
             [username]
         );
-
-        if(rows.length !== 0){
+        const taken_emails = await performQuery(
+            db_connection,
+            `SELECT * FROM ${users_table_name} WHERE email = ?`,
+            [email]
+        )
+        
+        if(taken_usernames.length !== 0){
             console.log("username already taken");
-            return -1;
+            return 100;
         }
+
+        if(taken_emails.length !== 0){
+            console.log("Email is taken");
+            return 200;
+        }
+
         const salt = crypto.randomBytes(8).toString('hex').slice(0, 16);
         const create_table = await performQuery(
             db_connection,
-            `INSERT INTO ${users_table_name} (username, password, salt, role, created_at, updated_at)` 
-            +`values (?, SHA2(CONCAT(?, ?), 256), ?, ?, NOW(), NOW());`,
-            [username, password, salt, salt, user_role]
+            `INSERT INTO ${users_table_name} (username, password, email, salt, role, created_at, updated_at)` 
+            +`values (?, SHA2(?, 256),? , ?, ?, NOW(), NOW());`,
+            [username, password.concat(salt), email, salt, user_role]
         )
         
         if(create_table.affectedRows == 1){
@@ -175,11 +186,24 @@ class Authenticator{
 
         return 1;
     }
+
+
+    async forgot_password(email){
+        const db_connection = self.db_connection;
+
+        const rows = await performQuery(
+            db_connection,
+            `SELECT * FROM ${users_table_name} WHERE username = ?`,
+            [email]
+        );
+
+
+    }
 }
 
 
 
 
 module.exports = {
-    Authenticator
+    SqlHandler
 }

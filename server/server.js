@@ -3,8 +3,9 @@ var session = require('express-session')
 const express = require('express');
 const cors = require('cors');
 const { getBlogEntry, createBlogEntry, addCommentToBlogEntry, removeBlogEntry } = require('./BlogDatahandler');
-const { Authenticator } = require('./User');
+const { SqlHandler } = require('./Authenticator');
 const cryptoRandomString = require('crypto-random-string');
+const { isEmailValid } = require('./EmailValidator');
 
 const app = express();
 app.set('trust proxy', 1)
@@ -32,7 +33,7 @@ app.use(express.json());
 
 
 app.get('/authenticate', async (req, res) => {
-    const user = new Authenticator();
+    const user = new SqlHandler();
     await user.initialize_db();
     const user_id = await user.get_username_from_session(req.session);
     if(!user_id){
@@ -75,7 +76,7 @@ app.post('/blogs/:id/comments', async (req, res) => {
     if(!req.session){
         return res.json(authentication_failed_message);
     }
-    const user = new Authenticator();
+    const user = new SqlHandler();
     await user.initialize_db();
     const profile_data = await user.get_profile_info(req.session);
     if(!profile_data){
@@ -92,7 +93,7 @@ app.post('/blogs', async (req, res) => {
     if(!req.session){
         return res.json(authentication_failed_message);
     }
-    const user = new Authenticator();
+    const user = new SqlHandler();
     await user.initialize_db();
     const profile_data = await user.get_profile_info(req.session);
     if(!profile_data){
@@ -115,7 +116,7 @@ app.delete('/blogs/:id', async (req, res) => {
         return res.json(authentication_failed_message);
     }
 
-    const user = new Authenticator();
+    const user = new SqlHandler();
     await user.initialize_db();
     const profile_data = await user.get_profile_info(req.session);
     if(!profile_data){
@@ -142,7 +143,7 @@ app.delete('/blogs/:id', async (req, res) => {
 
 
 app.post('/login', async (req, res) => {
-    const user = new Authenticator();
+    const user = new SqlHandler();
     await user.initialize_db()
     const result = await user.login(req.body.username, req.body.password, req.session)
     if(result === 1){
@@ -158,6 +159,7 @@ app.post('/login', async (req, res) => {
     }
 })
 
+
 app.post('/register', async (req, res) => {
     if(!req.session){
         return res.json(authentication_failed_message);
@@ -167,9 +169,37 @@ app.post('/register', async (req, res) => {
         return res.json({status: 400, message: 'Passwords dont match'});
     }
     
-    const user = new Authenticator();
+    if(!isEmailValid(req.body.email)){
+        console.log("Invalid Email");
+        return res.json({
+            status: 400,
+            message: 'E-Mail is invalid'
+        })
+    }
+
+    const user = new SqlHandler();
     await user.initialize_db();
-    const result = await user.register(req.body.username, req.body.password);
+    const result = await user.register(req.body.username, req.body.password, req.body.email);
+    if(result === 100){
+        return res.json({
+            status: 400,
+            message: "Username is already taken"
+        })
+    }
+    if(result === 200){
+        return res.json({
+            status: 400,
+            message: "E-Mail is already taken"
+
+        })
+    }
+    if(result === 0){
+        return res.json({
+            status: 200,
+            message: "Created user successfully"
+    })
+    }
+
     console.log(result);
 }) 
 
@@ -178,7 +208,7 @@ app.get('/get-profile-info', async (req, res) => {
     if(!req.session){
         return res.json(authentication_failed_message);
     }
-    const user = new Authenticator();
+    const user = new SqlHandler();
     await user.initialize_db();
     const profile_data = await user.get_profile_info(req.session);
     if(profile_data){
@@ -198,7 +228,7 @@ app.get('/logout', async (req, res) => {
     if(!req.session){
         return res.json(logout_failed_message);   
     }
-    const user = new Authenticator();
+    const user = new SqlHandler();
     await user.initialize_db();
     const result = user.logout(req.session)
 
@@ -206,6 +236,23 @@ app.get('/logout', async (req, res) => {
         return res.json({status: 200, message: 'Logout successful'})
     }
     return res.json(logout_failed_message)
+})
+
+
+app.post('/forgot', async (req, res) => {
+    const mail = req.body.email
+    if(!isEmailValid(mail)){
+        return res.json({
+            status: 400,
+            message: "This E-Mail invalid"
+    })
+
+    const sql_handler = new SqlHandler();
+    sql_handler.initialize_db();
+    
+
+    }
+
 })
 
 

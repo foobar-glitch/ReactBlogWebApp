@@ -38,29 +38,45 @@ const Login = () => {
         })
         
     }
+
+    const goToSignUp = () => {
+        window.location.href='/register';
+    }
     
   
     return(
         <div className="login">
-            <form onSubmit={handleLogin}>
-                <label>Usename: </label>
-                <input type="text" 
-                    onChange={(e) => setUsername(e.target.value)}
-                    value={username} 
-                    required>
-                </input>
-                <label>Password: </label>
-                <input 
-                    type="password"  
-                    onChange={(e) => setPassword(e.target.value)} 
-                    value={password}
-                    required>
-                </input>
-                {errorMessage && 
-                <div className="error-message">{errorMessage}</div>}
-                <button type="submit">Login</button>
-            </form>
-            <div className="noAccount">Not a member yet? Register <a href="/register">here</a></div>
+            <div className="signIn">
+                <form onSubmit={handleLogin}>
+                    <label>Usename: </label>
+                    <input type="text" 
+                        onChange={(e) => setUsername(e.target.value)}
+                        value={username} 
+                        required>
+                    </input>
+                    <label>Password: </label>
+                    <input 
+                        type="password"  
+                        onChange={(e) => setPassword(e.target.value)} 
+                        value={password}
+                        required>
+                    </input>
+                    {errorMessage && 
+                    <div className="error-message">{errorMessage}</div>}
+                    <div className="options">
+                        <input className="remember" type="checkbox" value="remember"></input> <a>Remember Me</a>
+                        <div className="resetpassword"><a href="/forgot">Forgot Password?</a></div>
+                    </div>
+                    
+                    <button type="submit">Login</button>
+                </form>
+                
+            </div>
+            <div className="signUp">Not a member yet? <br/>
+                <button onClick={goToSignUp}>
+                    Sign Up
+                </button>
+            </div>
         </div>
     );
 }

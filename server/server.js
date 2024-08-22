@@ -33,9 +33,7 @@ app.use(express.json());
 
 
 app.get('/authenticate', async (req, res) => {
-    const user = new SqlHandler();
-    await user.initialize_db();
-    const user_id = await user.get_username_from_session(req.session);
+    const user_id = await SqlHandler.get_username_from_session(req.session);
     if(!user_id){
         res.json({
             status: 401,
@@ -76,9 +74,7 @@ app.post('/blogs/:id/comments', async (req, res) => {
     if(!req.session){
         return res.json(authentication_failed_message);
     }
-    const user = new SqlHandler();
-    await user.initialize_db();
-    const profile_data = await user.get_profile_info(req.session);
+    const profile_data = await SqlHandler.get_profile_info(req.session);
     if(!profile_data){
         return res.json(authentication_failed_message);
     }
@@ -93,9 +89,8 @@ app.post('/blogs', async (req, res) => {
     if(!req.session){
         return res.json(authentication_failed_message);
     }
-    const user = new SqlHandler();
-    await user.initialize_db();
-    const profile_data = await user.get_profile_info(req.session);
+
+    const profile_data = await SqlHandler.get_profile_info(req.session);
     if(!profile_data){
         return res.json(authentication_failed_message);
     }
@@ -115,10 +110,7 @@ app.delete('/blogs/:id', async (req, res) => {
     if(!req.session){
         return res.json(authentication_failed_message);
     }
-
-    const user = new SqlHandler();
-    await user.initialize_db();
-    const profile_data = await user.get_profile_info(req.session);
+    const profile_data = await SqlHandler.get_profile_info(req.session);
     if(!profile_data){
         return res.json(authentication_failed_message);
     }
@@ -143,9 +135,7 @@ app.delete('/blogs/:id', async (req, res) => {
 
 
 app.post('/login', async (req, res) => {
-    const user = new SqlHandler();
-    await user.initialize_db()
-    const result = await user.login(req.body.username, req.body.password, req.session)
+    const result = await SqlHandler.login(req.body.username, req.body.password, req.session)
     if(result === 1){
         res.json({
             status: 200,
@@ -177,9 +167,7 @@ app.post('/register', async (req, res) => {
         })
     }
 
-    const user = new SqlHandler();
-    await user.initialize_db();
-    const result = await user.register(req.body.username, req.body.password, req.body.email);
+    const result = await SqlHandler.register(req.body.username, req.body.password, req.body.email);
     if(result === 100){
         return res.json({
             status: 400,
@@ -208,9 +196,7 @@ app.get('/get-profile-info', async (req, res) => {
     if(!req.session){
         return res.json(authentication_failed_message);
     }
-    const user = new SqlHandler();
-    await user.initialize_db();
-    const profile_data = await user.get_profile_info(req.session);
+    const profile_data = await SqlHandler.get_profile_info(req.session);
     if(profile_data){
         res.json({status:200, message: profile_data});
     }else{
@@ -228,9 +214,7 @@ app.get('/logout', async (req, res) => {
     if(!req.session){
         return res.json(logout_failed_message);   
     }
-    const user = new SqlHandler();
-    await user.initialize_db();
-    const result = user.logout(req.session)
+    const result = SqlHandler.logout(req.session)
 
     if(result){
         return res.json({status: 200, message: 'Logout successful'})
@@ -248,9 +232,7 @@ app.post('/forgot', async (req, res) => {
         })
     }
 
-    const sql_handler = new SqlHandler();
-    await sql_handler.initialize_db();
-    const ret = await sql_handler.forgot_password(email);
+    const ret = await SqlHandler.forgot_password(email);
     if(ret === 1){
         return res.json({
             status: 500,
@@ -267,9 +249,7 @@ app.post('/forgot', async (req, res) => {
 
 app.get('/forgot/reset', async (req, res) => {
     const token = req.query.token;
-    const sql_handler = new SqlHandler()
-    await sql_handler.initialize_db()
-    const useId_of_token = await sql_handler.forgot_password_validate_token(token)
+    const useId_of_token = await SqlHandler.forgot_password_validate_token(token)
     console.log(useId_of_token);
     if(useId_of_token === null){
         return res.json({
@@ -303,9 +283,7 @@ app.post('/forgot/reset', async (req, res) => {
         })
     }
 
-    const sql_handler = new SqlHandler()
-    await sql_handler.initialize_db()
-    const useId_of_token = await sql_handler.forgot_password_validate_token(token)
+    const useId_of_token = await SqlHandler.forgot_password_validate_token(token)
     if(useId_of_token === null){
         return res.json({
             status: 404,
@@ -319,7 +297,7 @@ app.post('/forgot/reset', async (req, res) => {
         })
     }
 
-    ret_code = await sql_handler.reset_password_with_userId(useId_of_token, password);
+    ret_code = await SqlHandler.reset_password_with_userId(useId_of_token, password);
     if(ret_code === 0){
         return res.json({
             status: 200,

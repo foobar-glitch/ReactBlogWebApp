@@ -1,28 +1,14 @@
 const { connectToDatabase, performQuery } = require('./DatabaseConnector');
 const { cookie_table_name, users_table_name, reset_table_name } = require('/var/www/private/nodejs/mysqlCredentials')
 const crypto = require('crypto');
+let db_connection
+
 
 class SqlHandler{
 
-    constructor(){
-        this.db_connection = null;
-        
-    }
-
-    async initialize_db() {
-        this.db_connection = await connectToDatabase();
-    }
-
-    check_db_initialized(){
-        if(!this.db_connection){
-            throw new Error("Database connection is not initialized.");
-        }
-    }
-
-    async login(username, password, session){
+    static async login(username, password, session){
+        db_connection = await connectToDatabase();
         const currentTime = new Date();
-        const db_connection = this.db_connection;
-        this.check_db_initialized();
 
         const salt_rows = await performQuery(
             db_connection, 
@@ -63,10 +49,10 @@ class SqlHandler{
 
     }
 
-    async register(username, password, email){
-        const db_connection = this.db_connection;
+    static async register(username, password, email){
+        db_connection = await connectToDatabase();
         const user_role = 'user'
-        this.check_db_initialized();
+        
 
         // check if username already taken
         const taken_usernames = await performQuery(
@@ -115,10 +101,8 @@ class SqlHandler{
     }
 
     // If successfull return username else return nothing
-    async get_username_from_session(session) {
-        const db_connection = this.db_connection;
-        this.check_db_initialized();
-
+    static async get_username_from_session(session) {
+        db_connection = await connectToDatabase();
 
         const cookie_table_data = await performQuery(
             db_connection,
@@ -146,11 +130,8 @@ class SqlHandler{
         return user_of_cookie
     }
 
-    async get_profile_info(session){
-        const db_connection = this.db_connection;
-
-        this.check_db_initialized();
-
+    static async get_profile_info(session){
+        db_connection = await connectToDatabase();
         const user_id = await this.get_username_from_session(session);
         if(!user_id){
             return null;
@@ -168,10 +149,8 @@ class SqlHandler{
         return {userId: profile_data[0].userId, username: profile_data[0].username, role: profile_data[0].role};
     }
 
-    async logout(session){
-        const db_connection = this.db_connection;
-
-        this.check_db_initialized();
+    static async logout(session){
+        db_connection = await connectToDatabase();        
         const username = await this.get_username_from_session(session);
 
         // invalid cookie
@@ -189,10 +168,8 @@ class SqlHandler{
     }
 
 
-    async forgot_password(email){
-        const db_connection = this.db_connection;
-        this.check_db_initialized();
-
+    static async forgot_password(email){
+        db_connection = await connectToDatabase();
         const email_entry = await performQuery(
             db_connection,
             `SELECT * FROM ${users_table_name} WHERE email = ?`,
@@ -248,10 +225,8 @@ class SqlHandler{
 
     }
 
-    async forgot_password_validate_token(token){
-        this.check_db_initialized();
-        const db_connection = this.db_connection;
-
+    static async forgot_password_validate_token(token){
+        db_connection = await connectToDatabase();
         const reset_entry = await performQuery(
             db_connection,
             `SELECT * FROM ${reset_table_name} WHERE resetToken = SHA2(?, 256)`,
@@ -281,9 +256,8 @@ class SqlHandler{
         return reset_entry[0].userId
     }
 
-    async reset_password_with_userId(userId, newpassword){
-        this.check_db_initialized();
-        const db_connection = this.db_connection;
+    static async reset_password_with_userId(userId, newpassword){
+        db_connection = await connectToDatabase();
         // delete token with userID
         await performQuery(
             db_connection,
@@ -307,14 +281,8 @@ class SqlHandler{
             throw Error("Server Error deleted data")
         }
         return 0;
-        
-
-
-
     }
 }
-
-
 
 
 module.exports = {

@@ -1,5 +1,5 @@
-import mysql.connector
-from mysql.connector import Error
+import mariadb
+
 
 mysql_host = "localhost"
 root = "root"
@@ -9,10 +9,12 @@ database_name = "web_db"
 user = "web_user"
 user_password = "user_secret"
 
-root_connection = mysql.connector.connect(
+
+root_connection = mariadb.connect(
     host=mysql_host,
     user=root,
-    password=root_password,
+    port=3306,
+    passwd=root_password,
 )
 
 cursor = root_connection.cursor()
@@ -23,7 +25,7 @@ cursor.execute(f"GRANT ALL privileges ON `{database_name}`.* TO `{user}`@`{mysql
 root_connection.close()
 
 # Connect to database as non root to avoid mitigate damage to db
-user_connection = mysql.connector.connect(
+user_connection = mariadb.connect(
     host=mysql_host,
     user=user,
     password=user_password,
@@ -32,7 +34,7 @@ user_connection = mysql.connector.connect(
 
 cursor = user_connection.cursor()
 create_user_table = """
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     userId INT(11) NOT NULL AUTO_INCREMENT,
     username VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
@@ -46,7 +48,7 @@ CREATE TABLE users (
 """
 
 create_cookie_table = """
-CREATE TABLE cookie_table (
+CREATE TABLE IF NOT EXISTS cookie_table (
     cookieId INT(11) NOT NULL AUTO_INCREMENT,
     userId INT(11) NOT NULL,
     cookieData VARCHAR(255) NOT NULL,
@@ -60,7 +62,7 @@ CREATE TABLE cookie_table (
 """
 
 create_reset_table = """
-CREATE TABLE reset_table (
+CREATE TABLE IF NOT EXISTS reset_table (
     resetId INT(11) NOT NULL AUTO_INCREMENT,
     userId INT(11) NOT NULL,
     resetToken VARCHAR(255) NOT NULL,

@@ -1,14 +1,14 @@
-import { useHistory, useParams } from "react-router-dom/cjs/react-router-dom.min";
+import React, { useState } from 'react';
+import { useNavigate, useParams } from "react-router-dom";
 import useFetchGET from "./useFetchGET";
 import { blogs_endpoint } from "./Universals";
-import { useState } from "react";
 import BlogEntryCommentsList from "./BlogEntryCommentsList";
 
 
 const BlogDetails = () =>{
     const { id } = useParams();
     const { data, error, isPending } = useFetchGET(`${blogs_endpoint}/${id}`);
-    const history = useHistory();
+    const history = useNavigate();
     const [comment, setComment] = useState('');
 
     const handleBlogDeletion = () => {
@@ -16,7 +16,7 @@ const BlogDetails = () =>{
             method: 'DELETE',
             credentials: 'include' 
         }).then(() => {
-            history.push('/');
+            history('/');
         })
     }
 

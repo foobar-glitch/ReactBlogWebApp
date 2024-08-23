@@ -1,7 +1,6 @@
-import React from "react";
-import { useEffect, useState } from "react";
+import React from 'react';
+import { useState } from "react";
 import { useLocation } from 'react-router-dom';
-import axios from 'axios';
 import { reset_by_token_endpoint } from './Universals'
 import useFetchGET from "./useFetchGET";
 
@@ -38,6 +37,8 @@ const ResetByToken = () => {
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify(loginForm),
             credentials: 'include'
+        }).then((res) => {
+
         })
     }
 

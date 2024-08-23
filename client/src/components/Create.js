@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
+import React, { useState } from 'react';
 import { authenticate_endpoint, blogs_endpoint } from "./Universals";
 import useFetchGET from "./useFetchGET";
 
@@ -8,7 +7,6 @@ const Create = () => {
     const [body, setBody] = useState('');
     //const [author, setAuthor] = useState(null);
     const [isPending, setIsPending] = useState(false);
-    const history = useHistory();
     const { data: profile_data, isPending: profileFetchingisPending, error } = useFetchGET(authenticate_endpoint, []);
     const [authencationMessage, setAuthencationMessage] = useState(null);
 
@@ -32,7 +30,6 @@ const Create = () => {
             console.log(data);
             setIsPending(false);
             setAuthencationMessage(data) 
-            //history.push('/');
         })
     }
 

@@ -1,6 +1,6 @@
+import React from 'react';
 import { useState } from "react";
 import { register_endpoint } from "./Universals";
-import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 
 const Register = () => {
     const [username, setUsername] = useState('');
@@ -8,7 +8,7 @@ const Register = () => {
     const [password, setPassword] = useState('');
     const [passwordVerify, setPasswordVerify] = useState('');
 
-    const [serverResponse, setServerResponse] = useState(null);
+    const [serverResponse, setServerResponse] = useState('');
 
     const handleRegister = (e) =>{
         const loginForm = { username, email, password, passwordVerify};

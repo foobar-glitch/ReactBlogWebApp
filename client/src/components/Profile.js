@@ -1,13 +1,14 @@
+import React from 'react';
 import { profile_data_endpoint, logout_endpoint } from "./Universals";
-import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
+import { useNavigate } from "react-router-dom";
 import useFetchGET from "./useFetchGET";
 
 const Profile = () => {
-    const history = useHistory();
+    const history = useNavigate();
 
     function displayInfo(profile_data){
         if(profile_data.status !== 200){
-            history.push('/login',{ status: 404, message: 'Please login first' });
+            history('login',{ status: 404, message: 'Please login first' });
         }else{
             console.log(profile_data)
             return(
@@ -32,7 +33,7 @@ const Profile = () => {
         })
         .then(data => {
             console.log(data);
-            history.push('/');
+            history('/');
             window.location.reload();
         })
         .catch(err => {

@@ -1,3 +1,4 @@
+import React from 'react';
 const BlogEntryCommentsList = ({comments}) => {
     return(
         <div className="comment-list">

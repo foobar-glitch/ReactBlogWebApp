@@ -132,3 +132,35 @@ To connect to the container just use:
 mariadb  -h 127.0.0.1 --port 33060 -u root -p
 ```
 And enter the password
+
+
+### httpd
+In Apache add this config
+```httpd
+<VirtualHost mydomain:80>
+    ServerName mydomain.com
+    DocumentRoot "/var/www/html/dojo-blog/client/build"
+    <Directory /var/www/html/dojo-blog/client/build>
+        Options -Indexes +FollowSymLinks
+        AllowOverride All
+        Require all granted
+        
+        <IfModule mod_rewrite.c>
+          RewriteEngine On
+          # Redirect to the root index.html for all requests not matching a file
+          RewriteCond %{REQUEST_FILENAME} !-f
+          RewriteCond %{REQUEST_FILENAME} !-d
+          RewriteRule ^ index.html [L]
+	      </IfModule>
+    </Directory>
+
+    <Location /api>
+      ProxyPass "http://127.0.0.1:8080"
+      ProxyPassReverse "http://127.0.0.1:8080"
+    </Location>
+
+    ErrorLog "/var/log/httpd/react/error_log"
+    CustomLog "/var/log/httpd/react/access_log" common
+</VirtualHost>
+```
+###

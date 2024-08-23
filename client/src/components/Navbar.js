@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom/cjs/react-router-dom.min";
+import React from 'react';
+import { Link } from "react-router-dom";
 import { authenticate_endpoint } from "./Universals";
 import useFetchGET from "./useFetchGET";
 

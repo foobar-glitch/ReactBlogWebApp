@@ -1,12 +1,13 @@
-import { useState } from "react";
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { login_endpoint } from "./Universals";
-import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
-    const history = useHistory();
+    const history = useNavigate();
 
     const [errorMessage, setErrorMessage] = useState(null);
 
@@ -32,7 +33,7 @@ const Login = () => {
                 setErrorMessage(data.message);
             }
             else{
-                history.push('/');
+                history('/');
                 window.location.reload();
             }
         })
@@ -40,7 +41,7 @@ const Login = () => {
     }
 
     const goToSignUp = () => {
-        window.location.href='/register';
+        history('/register')
     }
     
   
@@ -65,7 +66,7 @@ const Login = () => {
                     <div className="error-message">{errorMessage}</div>}
                     <div className="options">
                         <input className="remember" type="checkbox" value="remember"></input> <a>Remember Me</a>
-                        <div className="resetpassword"><a href="/forgot">Forgot Password?</a></div>
+                        <div className="resetpassword"><a><Link to="/forgot">Forgot Password?</Link></a></div>
                     </div>
                     
                     <button type="submit">Login</button>

@@ -72,7 +72,7 @@ const ResetByToken = () => {
     const { data: tokenResponse, isPending, error } = useFetchGET(`${reset_by_token_endpoint}?token=${token}`);
     return(
         <div>
-            <h1>Received Query Parameters</h1>
+            <h1>This is the password reset page</h1>
             {!isPending && tokenResponse && tokenResponse.status===202 && new_password(token)}
         </div>
     );

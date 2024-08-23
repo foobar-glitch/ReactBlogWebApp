@@ -6,7 +6,6 @@ import useFetchGET from "./useFetchGET";
 
 const Navbar = () => {
     function displayInfo(profile_data){
-        console.log(profile_data)
         if(profile_data.status === 200){
             return(
                 <Link to="/profile">Profile</Link>

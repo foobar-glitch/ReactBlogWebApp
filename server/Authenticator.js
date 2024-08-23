@@ -1,57 +1,61 @@
-const { connectToDatabase, performQuery } = require('./DatabaseConnector');
+const { connectToDatabase, closeDatabaseConnection, performQuery } = require('./DatabaseConnector');
 const { cookie_table_name, users_table_name, reset_table_name } = require('/var/www/private/nodejs/mysqlCredentials')
 const crypto = require('crypto');
 let db_connection
 
-
 class SqlHandler{
 
     static async login(username, password, session){
-        db_connection = await connectToDatabase();
-        const currentTime = new Date();
+        try{
+            db_connection = await connectToDatabase();
+            const currentTime = new Date();
 
-        const salt_rows = await performQuery(
-            db_connection, 
-            `SELECT salt FROM ${users_table_name} WHERE username = ?`,
-            [username]
-            )
-    
-        //console.log(salt_rows.length)
-        if(salt_rows.length !== 1){
-            return 0
-        }
+            const salt_rows = await performQuery(
+                db_connection, 
+                `SELECT salt FROM ${users_table_name} WHERE username = ?`,
+                [username]
+                )
         
-        const sql_salt = salt_rows[0].salt
-        console.log(`salt of user='${username}' is '${sql_salt}'`)
-        // Perform the database query
-        const rows = await performQuery(
-            db_connection,
-            `SELECT * FROM ${users_table_name} WHERE username = ? AND password = SHA2(?, 256)`,
-            [username, password.concat(sql_salt)]
-        );
-        if (rows.length !== 1) {
-            return 0;
+            //console.log(salt_rows.length)
+            if(salt_rows.length !== 1){
+                return 0
+            }
+            
+            const sql_salt = salt_rows[0].salt
+            console.log(`salt of user='${username}' is '${sql_salt}'`)
+            // Perform the database query
+            const rows = await performQuery(
+                db_connection,
+                `SELECT * FROM ${users_table_name} WHERE username = ? AND password = SHA2(?, 256)`,
+                [username, password.concat(sql_salt)]
+            );
+            if (rows.length !== 1) {
+                return 0;
+            }
+            // Update Session table
+            await performQuery(
+                db_connection,
+                `DELETE FROM ${cookie_table_name} WHERE userId = ?`,
+                [rows[0].userId]
+            );
+
+            // After login insert the session cookie into the cookie table
+            await performQuery(
+                db_connection,
+                `INSERT ${cookie_table_name} (userId, cookieData, created_at, expired_at) VALUES (?, ?, ?, ?)`,
+                [rows[0].userId, session.id, currentTime, session.cookie._expires]
+            );
+            return 1;
+        }finally{
+            await closeDatabaseConnection(db_connection);
         }
-        // Update Session table
-        await performQuery(
-            db_connection,
-            `DELETE FROM ${cookie_table_name} WHERE userId = ?`,
-            [rows[0].userId]
-        );
-
-        // After login insert the session cookie into the cookie table
-        await performQuery(
-            db_connection,
-            `INSERT ${cookie_table_name} (userId, cookieData, created_at, expired_at) VALUES (?, ?, ?, ?)`,
-            [rows[0].userId, session.id, currentTime, session.cookie._expires]
-        );
-        return 1;
-
     }
 
     static async register(username, password, email){
-        db_connection = await connectToDatabase();
-        const user_role = 'user'
+        try{
+
+            db_connection = await connectToDatabase();
+            const user_role = 'user'
         
 
         // check if username already taken
@@ -96,47 +100,51 @@ class SqlHandler{
         if(create_table.affectedRows > 1){
             throw Error("Server error more than one entry changed!!");
         }
-
-        return 2;
+            return 2;
+        }finally{
+            await closeDatabaseConnection(db_connection);
+        }
     }
 
     // If successfull return username else return nothing
     static async get_username_from_session(session) {
-        db_connection = await connectToDatabase();
+        try{
+            db_connection = await connectToDatabase();
 
-        const cookie_table_data = await performQuery(
+            const cookie_table_data = await performQuery(
             db_connection,
             `SELECT * FROM ${cookie_table_name} WHERE cookieData = ?`,
             [session.id]
             );
 
-        if (cookie_table_data.length !== 1) {
-            return null;
-        }
+            if (cookie_table_data.length !== 1) {
+                return null;
+            }
 
-        const user_of_cookie = cookie_table_data[0].userId;
-        // Only use cookie if not expired, otherwise delete entry
-        const currentTime = new Date();
-        if (cookie_table_data[0].expiresAt < currentTime) {
-            session.destroy();
-            await performQuery(
-                db_connection,
-                `DELETE FROM ${cookie_table_name} WHERE userId = ?`,
-                [user_of_cookie]
-            );
-            return null;
+            const user_of_cookie = cookie_table_data[0].userId;
+            // Only use cookie if not expired, otherwise delete entry
+            const currentTime = new Date();
+            if (cookie_table_data[0].expiresAt < currentTime) {
+                session.destroy();
+                await performQuery(
+                    db_connection,
+                    `DELETE FROM ${cookie_table_name} WHERE userId = ?`,
+                    [user_of_cookie]
+                );
+                return null;
+            }
+            return user_of_cookie
+        }finally{
+            await closeDatabaseConnection(db_connection)
         }
-
-        return user_of_cookie
+        
     }
 
-    static async get_profile_info(session){
-        db_connection = await connectToDatabase();
-        const user_id = await this.get_username_from_session(session);
-        if(!user_id){
-            return null;
-        }
-        const profile_data = await performQuery(
+
+    static async get_profile_from_userid(user_id){
+        try{
+            db_connection = await connectToDatabase();
+            const profile_data = await performQuery(
             db_connection,
             `SELECT userId, username, role FROM ${users_table_name} WHERE userId = ?`,
             [user_id]
@@ -145,142 +153,188 @@ class SqlHandler{
         if(profile_data.length != 1){
             throw Error(`Username ${user_id} more than once in user table`)
         }
+        return profile_data[0]
 
-        return {userId: profile_data[0].userId, username: profile_data[0].username, role: profile_data[0].role};
+        }finally{
+            await closeDatabaseConnection(db_connection)
+        }
+        
+    }
+
+
+    static async get_profile_info(session){
+        const user_id = await this.get_username_from_session(session);
+        try{
+            db_connection = await connectToDatabase();
+            if(!user_id){
+                return null;
+            }
+            const profile_data = await performQuery(
+                db_connection,
+                `SELECT userId, username, role FROM ${users_table_name} WHERE userId = ?`,
+                [user_id]
+            );
+
+            if(profile_data.length != 1){
+                throw Error(`Username ${user_id} more than once in user table`)
+            }
+
+            return {userId: profile_data[0].userId, username: profile_data[0].username, role: profile_data[0].role};
+        }finally{
+            await closeDatabaseConnection(db_connection)
+        }
+        
     }
 
     static async logout(session){
-        db_connection = await connectToDatabase();        
         const username = await this.get_username_from_session(session);
+        try{
+            db_connection = await connectToDatabase();
+            // invalid cookie
+            if(!username){
+                return 0
+            }
 
-        // invalid cookie
-        if(!username){
-            return 0
+            await performQuery(
+                db_connection,
+                `DELETE FROM ${cookie_table_name} WHERE cookieData = ?`,
+                [session.id]
+            );
+
+            return 1;
+
+        }finally{
+            await closeDatabaseConnection(db_connection)
         }
-
-        await performQuery(
-            db_connection,
-            `DELETE FROM ${cookie_table_name} WHERE cookieData = ?`,
-            [session.id]
-        );
-
-        return 1;
+        
     }
 
 
     static async forgot_password(email){
-        db_connection = await connectToDatabase();
-        const email_entry = await performQuery(
-            db_connection,
-            `SELECT * FROM ${users_table_name} WHERE email = ?`,
-            [email]
-        );
-        if(email_entry.length < 1){
-            console.log("E-Mail is not registered yet");
-            return 100;
+        try{
+            db_connection = await connectToDatabase();
+            const email_entry = await performQuery(
+                db_connection,
+                `SELECT * FROM ${users_table_name} WHERE email = ?`,
+                [email]
+            );
+            if(email_entry.length < 1){
+                console.log("E-Mail is not registered yet");
+                return 100;
+            }
+            if(email_entry.length > 1){
+                console.log("E-Mail more than once in database. Should not be");
+                throw Error("Email is multiple times in databank")
+            }
+
+
+            console.log(email_entry[0])
+            // if token for email already exists overwrite token
+            
+            const token_exist = await performQuery(
+                db_connection,
+                `DELETE FROM ${reset_table_name} WHERE userId = ?`,
+                [email_entry[0].userId]
+            )
+
+
+            const currentTime = new Date();
+            const nextDayTime = new Date(currentTime.getTime() + 24 * 60 * 60 * 1000);
+
+            // Create random reset token
+            const reset_token = crypto.randomBytes(16).toString('hex');
+
+            // Create a reset entry
+            const reset_entry = await performQuery(
+                db_connection,
+                `INSERT INTO ${reset_table_name} (userId, resetToken, created_at, expired_at) VALUES (?, SHA2(?, 256), ?, ?)`,
+                [email_entry[0].userId, reset_token, currentTime, nextDayTime]
+            )
+
+            if(reset_entry.affectedRows == 1){
+                // Currently not sending to E-Mail
+                console.log(`Creating reset entry succeded with token: '${reset_token}'`);
+                console.log(`visit: '/forgot/reset?token=${reset_token}' to reset the password`)
+                return 0;
+            }
+            if(reset_entry.affectedRows < 1){
+                console.log("Nothing changed user not added.");
+                return 1;
+            }
+            if(reset_entry.affectedRows > 1){
+                throw Error("Server error more than one entry changed!!");
+            }
+            //TODO send token via email as /forgot?token=random_token
+        }finally{
+            await closeDatabaseConnection(db_connection)
         }
-        if(email_entry.length > 1){
-            console.log("E-Mail more than once in database. Should not be");
-            throw Error("Email is multiple times in databank")
-        }
-
-
-        console.log(email_entry[0])
-        // if token for email already exists overwrite token
-        
-        const token_exist = await performQuery(
-            db_connection,
-            `DELETE FROM ${reset_table_name} WHERE userId = ?`,
-            [email_entry[0].userId]
-        )
-
-
-        const currentTime = new Date();
-        const nextDayTime = new Date(currentTime.getTime() + 24 * 60 * 60 * 1000);
-
-        // Create random reset token
-        const reset_token = crypto.randomBytes(16).toString('hex');
-
-        // Create a reset entry
-        const reset_entry = await performQuery(
-            db_connection,
-            `INSERT INTO ${reset_table_name} (userId, resetToken, created_at, expired_at) VALUES (?, SHA2(?, 256), ?, ?)`,
-            [email_entry[0].userId, reset_token, currentTime, nextDayTime]
-        )
-
-        if(reset_entry.affectedRows == 1){
-            // Currently not sending to E-Mail
-            console.log(`Creating reset entry succeded with token: '${reset_token}'`);
-            console.log(`visit: '/forgot/reset?token=${reset_token}' to reset the password`)
-            return 0;
-        }
-        if(reset_entry.affectedRows < 1){
-            console.log("Nothing changed user not added.");
-            return 1;
-        }
-        if(reset_entry.affectedRows > 1){
-            throw Error("Server error more than one entry changed!!");
-        }
-        //TODO send token via email as /forgot?token=random_token
 
     }
 
     static async forgot_password_validate_token(token){
-        db_connection = await connectToDatabase();
-        const reset_entry = await performQuery(
-            db_connection,
-            `SELECT * FROM ${reset_table_name} WHERE resetToken = SHA2(?, 256)`,
-            [token]
-        )
-        console.log(reset_entry)
-        if(reset_entry.length < 1){
-            //console.log("Entry not found")
-            return null;
-        }
-        if(reset_entry.length > 1){
-            throw Error("Server error more than one entry for token")
-        }
-
-        const currentTime = new Date();
-
-        if(reset_entry[0].expired_at < currentTime){
-            // Delete resetToken from table
-            console.log("Expired time")
-            await performQuery(
+        try{
+            db_connection = await connectToDatabase();
+            const reset_entry = await performQuery(
                 db_connection,
-                `DELETE FROM ${reset_table_name} WHERE resetId=${reset_entry[0].resetId}`
+                `SELECT * FROM ${reset_table_name} WHERE resetToken = SHA2(?, 256)`,
+                [token]
             )
-            return -1
-        }
+            console.log(reset_entry)
+            if(reset_entry.length < 1){
+                //console.log("Entry not found")
+                return null;
+            }
+            if(reset_entry.length > 1){
+                throw Error("Server error more than one entry for token")
+            }
 
-        return reset_entry[0].userId
+            const currentTime = new Date();
+
+            if(reset_entry[0].expired_at < currentTime){
+                // Delete resetToken from table
+                console.log("Expired time")
+                await performQuery(
+                    db_connection,
+                    `DELETE FROM ${reset_table_name} WHERE resetId=${reset_entry[0].resetId}`
+                )
+                return -1
+            }
+            return reset_entry[0].userId
+        }finally{
+            await closeDatabaseConnection(db_connection)
+        }
     }
 
     static async reset_password_with_userId(userId, newpassword){
-        db_connection = await connectToDatabase();
-        // delete token with userID
-        await performQuery(
-            db_connection,
-            `DELETE FROM ${reset_table_name} WHERE userId=?`,
-            [userId]
-        )
+        try{
+            db_connection = await connectToDatabase();
+            // delete token with userID
+            await performQuery(
+                db_connection,
+                `DELETE FROM ${reset_table_name} WHERE userId=?`,
+                [userId]
+            )
+            
+            const salt = crypto.randomBytes(8).toString('hex').slice(0, 16);
+
+            const create_table = await performQuery(
+                db_connection,
+                `UPDATE ${users_table_name} SET password = SHA2(?, 256), salt = ? WHERE userId = ?;`,
+                [newpassword.concat(salt), salt, userId]
+            )
+
+            if(create_table.affectedRows < 1){
+                return -1
+            }
+            if(create_table.affectedRows > 1){
+                // Changed more than one field
+                throw Error("Server Error deleted data")
+            }
+            return 0;
+        }finally{
+            await closeDatabaseConnection(db_connection)
+        }
         
-        const salt = crypto.randomBytes(8).toString('hex').slice(0, 16);
-
-        const create_table = await performQuery(
-            db_connection,
-            `UPDATE ${users_table_name} SET password = SHA2(?, 256), salt = ? WHERE userId = ?;`,
-            [newpassword.concat(salt), salt, userId]
-        )
-
-        if(create_table.affectedRows < 1){
-            return -1
-        }
-        if(create_table.affectedRows > 1){
-            // Changed more than one field
-            throw Error("Server Error deleted data")
-        }
-        return 0;
     }
 }
 

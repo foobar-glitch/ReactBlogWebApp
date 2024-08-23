@@ -30,7 +30,21 @@ async function performQuery(conn, sql, values) {
     return await query(sql, values);
 }
 
+function closeDatabaseConnection(conn) {
+  return new Promise((resolve, reject) => {
+      conn.end((error) => {
+          if (error) {
+              console.log('Error ending the connection:', error);
+              reject(error);
+          } else {
+              resolve();
+          }
+      });
+  });
+}
+
 module.exports = {
     connectToDatabase,
+    closeDatabaseConnection,
     performQuery,
 }

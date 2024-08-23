@@ -14,6 +14,7 @@ This is the information Schema for the users (table name: 'users'):
 CREATE TABLE users (
     userId INT(11) NOT NULL AUTO_INCREMENT,
     username VARCHAR(255) NOT NULL UNIQUE,
+    email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     salt VARCHAR(255) NOT NULL,
     role VARCHAR(255) NOT NULL,
@@ -120,3 +121,14 @@ This is how the blog entires are stored as of now:
   }
 ]
 ```
+
+### Start MariaDB Container
+To start a mariaDB container just run:
+```bash
+docker run -p 127.0.0.1:${inport}:3306  --name mariadbserver -e MARIADB_ROOT_PASSWORD=${passord} -d mariadb:latest
+```
+To connect to the container just use:
+```bash
+mariadb  -h 127.0.0.1 --port 33060 -u root -p
+```
+And enter the password

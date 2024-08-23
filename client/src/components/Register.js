@@ -8,7 +8,7 @@ const Register = () => {
     const [password, setPassword] = useState('');
     const [passwordVerify, setPasswordVerify] = useState('');
 
-    const [errorMessage, setErrorMessage] = useState(null);
+    const [serverResponse, setServerResponse] = useState(null);
 
     const handleRegister = (e) =>{
         const loginForm = { username, email, password, passwordVerify};
@@ -19,7 +19,20 @@ const Register = () => {
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify(loginForm),
             credentials: 'include'
-        })
+        }).then(
+            (res) => {
+                console.log(res)
+                if(!res.ok){
+                    throw Error('Could not fetch the data for that resource')
+                }
+                return res.json();
+            }
+        ).then(
+            (data) => {
+                setServerResponse(data)
+            }
+        )
+        
     }
 
     return (
@@ -52,8 +65,8 @@ const Register = () => {
                     value={passwordVerify}
                     required>
                 </input>
-                {errorMessage && 
-                <div className="error-message">{errorMessage}</div>}
+                {serverResponse && serverResponse.status !== 200 && <div className="error-message">{serverResponse.message}</div>}
+                {serverResponse && serverResponse.status === 200 && <div className="success-message">{serverResponse.message}</div>}
                 <button type="submit">Sign Up</button>
             </form>
         </div>

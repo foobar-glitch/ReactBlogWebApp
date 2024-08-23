@@ -1,35 +1,30 @@
 import mariadb
-
-
-mysql_host = "localhost"
-root = "root"
-root_password = "root"
-database_name = "web_db"
-
-user = "web_user"
-user_password = "user_secret"
+import sys
+sys.path.append('/')
+from var.www.private.python.mysqlcredentials import SQL_HOST, SQL_PORT, ROOT_USER_NAME, ROOT_USER_PASSWORD, DB_NAME, USER_NAME, USER_PASSWORD
 
 
 root_connection = mariadb.connect(
-    host=mysql_host,
-    user=root,
-    port=3306,
-    passwd=root_password,
+    host=SQL_HOST,
+    user=ROOT_USER_NAME,
+    port=SQL_PORT,
+    passwd=ROOT_USER_PASSWORD,
 )
 
 cursor = root_connection.cursor()
-cursor.execute(f"CREATE DATABASE IF NOT EXISTS {database_name}")
-cursor.execute(f"CREATE USER IF NOT EXISTS {user}@{mysql_host} IDENTIFIED BY '{user_password}'")
-cursor.execute(f"GRANT ALL privileges ON `{database_name}`.* TO `{user}`@`{mysql_host}`")
+cursor.execute(f"CREATE DATABASE IF NOT EXISTS {DB_NAME}")
+cursor.execute(f"CREATE USER IF NOT EXISTS `{USER_NAME}`@`%` IDENTIFIED BY '{USER_PASSWORD}'")
+cursor.execute(f"GRANT ALL privileges ON `{DB_NAME}`.* TO `{USER_NAME}`@`%`")
 
 root_connection.close()
 
 # Connect to database as non root to avoid mitigate damage to db
 user_connection = mariadb.connect(
-    host=mysql_host,
-    user=user,
-    password=user_password,
-    database=database_name
+    host=SQL_HOST,
+    user=USER_NAME,
+    port=SQL_PORT,
+    password=USER_PASSWORD,
+    database=DB_NAME
 )
 
 cursor = user_connection.cursor()
@@ -37,8 +32,8 @@ create_user_table = """
 CREATE TABLE IF NOT EXISTS users (
     userId INT(11) NOT NULL AUTO_INCREMENT,
     username VARCHAR(255) NOT NULL UNIQUE,
+    email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL,
     salt VARCHAR(255) NOT NULL,
     role VARCHAR(255) NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -78,4 +73,5 @@ cursor.execute(create_user_table)
 cursor.execute(create_cookie_table)
 cursor.execute(create_reset_table)
 
-drop_tables = "DROP TABLE users;"
+user_connection.commit()
+user_connection.close()

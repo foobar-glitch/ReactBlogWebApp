@@ -9,6 +9,7 @@ const ResetByToken = () => {
     const location = useLocation();
     const [password, setPassword] = useState('');
     const [verifyPassword, setVerifyPassword] = useState('');
+    const [errorMessage, setErrorMessage] = useState(null)
     //const [token, setToken] = useState('');
 
     const getQueryParams = () => {
@@ -37,8 +38,15 @@ const ResetByToken = () => {
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify(loginForm),
             credentials: 'include'
-        }).then((res) => {
-
+        }).then(
+            (res) => {
+                if(!res.ok){
+                    throw Error('Could not fetch the data for that resource')
+                }
+                return res.json();
+            }
+        ).then((data) => {
+            console.log(data)
         })
     }
 
@@ -67,12 +75,18 @@ const ResetByToken = () => {
             </div>
         )
     }
+    const give_welcome = (username) =>{
+        return (
+            <div className='welcome-reset'>Reset your password, <b>{username}</b>:</div>
+        )
+    }
+
 
     const token = getQueryParams()['token'];
     const { data: tokenResponse, isPending, error } = useFetchGET(`${reset_by_token_endpoint}?token=${token}`);
     return(
         <div>
-            <h1>This is the password reset page</h1>
+            {!isPending && tokenResponse && tokenResponse.status===202 && give_welcome(tokenResponse.username)}
             {!isPending && tokenResponse && tokenResponse.status===202 && new_password(token)}
         </div>
     );

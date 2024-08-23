@@ -74,7 +74,7 @@ app.post('/blogs/:id/comments', async (req, res) => {
     if(!req.session){
         return res.json(authentication_failed_message);
     }
-    const profile_data = await SqlHandler.get_profile_info(req.session);
+    const profile_data = await SqlHandler.get_profile_info_from_session(req.session);
     if(!profile_data){
         return res.json(authentication_failed_message);
     }
@@ -90,7 +90,7 @@ app.post('/blogs', async (req, res) => {
         return res.json(authentication_failed_message);
     }
 
-    const profile_data = await SqlHandler.get_profile_info(req.session);
+    const profile_data = await SqlHandler.get_profile_info_from_session(req.session);
     if(!profile_data){
         return res.json(authentication_failed_message);
     }
@@ -110,7 +110,7 @@ app.delete('/blogs/:id', async (req, res) => {
     if(!req.session){
         return res.json(authentication_failed_message);
     }
-    const profile_data = await SqlHandler.get_profile_info(req.session);
+    const profile_data = await SqlHandler.get_profile_info_from_session(req.session);
     if(!profile_data){
         return res.json(authentication_failed_message);
     }
@@ -196,7 +196,7 @@ app.get('/get-profile-info', async (req, res) => {
     if(!req.session){
         return res.json(authentication_failed_message);
     }
-    const profile_data = await SqlHandler.get_profile_info(req.session);
+    const profile_data = await SqlHandler.get_profile_info_from_session(req.session);
     if(profile_data){
         res.json({status:200, message: profile_data});
     }else{
@@ -250,7 +250,8 @@ app.post('/forgot', async (req, res) => {
 app.get('/forgot/reset', async (req, res) => {
     const token = req.query.token;
     const useId_of_token = await SqlHandler.forgot_password_validate_token(token)
-    console.log(useId_of_token);
+    const user_data = await SqlHandler.get_profile_info_from_userid(useId_of_token)
+    
     if(useId_of_token === null){
         return res.json({
             status: 400,
@@ -265,7 +266,8 @@ app.get('/forgot/reset', async (req, res) => {
     }
     return res.json({
         status: 202,
-        message: "Token is correct. Reset password now."+useId_of_token
+        username: user_data.username,
+        message: "Token is correct. Reset password now."
     })
     
 })

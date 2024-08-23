@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { forgot_password_enpoint } from './Universals'
-
+import { useNavigate } from "react-router-dom";
 
 const ForgotPassword = () => {
     const [email, setEmail] = useState('');
     const [errorMessage, setErrorMessage] = useState(null)
+    const history = useNavigate();
 
     const handleForgotPassword = (e) => {
         const loginForm = { email };

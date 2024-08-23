@@ -1,11 +1,11 @@
 const { connectToDatabase, closeDatabaseConnection, performQuery } = require('./DatabaseConnector');
 const { cookie_table_name, users_table_name, reset_table_name } = require('/var/www/private/nodejs/mysqlCredentials')
 const crypto = require('crypto');
-let db_connection
 
 class SqlHandler{
 
     static async login(username, password, session){
+        let db_connection
         try{
             db_connection = await connectToDatabase();
             const currentTime = new Date();
@@ -52,6 +52,7 @@ class SqlHandler{
     }
 
     static async register(username, password, email){
+        let db_connection
         try{
 
             db_connection = await connectToDatabase();
@@ -108,6 +109,7 @@ class SqlHandler{
 
     // If successfull return username else return nothing
     static async get_username_from_session(session) {
+        let db_connection
         try{
             db_connection = await connectToDatabase();
 
@@ -141,7 +143,8 @@ class SqlHandler{
     }
 
 
-    static async get_profile_from_userid(user_id){
+    static async get_profile_info_from_userid(user_id){
+        let db_connection
         try{
             db_connection = await connectToDatabase();
             const profile_data = await performQuery(
@@ -150,10 +153,14 @@ class SqlHandler{
             [user_id]
         );
 
-        if(profile_data.length != 1){
-            throw Error(`Username ${user_id} more than once in user table`)
+        if(profile_data.length < 1){
+            return  null
         }
-        return profile_data[0]
+        if(profile_data.length > 1){
+            throw Error("More than one user by user_id")
+        }
+
+        return {username: profile_data[0].username, role: profile_data[0].role};
 
         }finally{
             await closeDatabaseConnection(db_connection)
@@ -162,8 +169,9 @@ class SqlHandler{
     }
 
 
-    static async get_profile_info(session){
+    static async get_profile_info_from_session(session){
         const user_id = await this.get_username_from_session(session);
+        let db_connection
         try{
             db_connection = await connectToDatabase();
             if(!user_id){
@@ -188,6 +196,7 @@ class SqlHandler{
 
     static async logout(session){
         const username = await this.get_username_from_session(session);
+        let db_connection
         try{
             db_connection = await connectToDatabase();
             // invalid cookie
@@ -211,6 +220,7 @@ class SqlHandler{
 
 
     static async forgot_password(email){
+        let db_connection
         try{
             db_connection = await connectToDatabase();
             const email_entry = await performQuery(
@@ -272,6 +282,7 @@ class SqlHandler{
     }
 
     static async forgot_password_validate_token(token){
+        let db_connection
         try{
             db_connection = await connectToDatabase();
             const reset_entry = await performQuery(
@@ -306,6 +317,7 @@ class SqlHandler{
     }
 
     static async reset_password_with_userId(userId, newpassword){
+        let db_connection
         try{
             db_connection = await connectToDatabase();
             // delete token with userID

@@ -1,16 +1,15 @@
 const mysql = require('mysql');
 const util = require('util');
-const {db_host, db_port, db_user, db_password, db_name} = require('/var/www/private/nodejs/mysqlCredentials')
+const { SQLSecrets } = require('./DBConfigs');
 
-// Function to establish a MySQL connection
 function connectToDatabase() {
   return new Promise((resolve, reject) => {
     const conn = mysql.createConnection({
-      host: db_host,
-      port: db_port,
-      user: db_user,
-      password: db_password,
-      database: db_name,
+      host: SQLSecrets.HOST,
+      port: SQLSecrets.PORT,
+      user: SQLSecrets.USER,
+      password: SQLSecrets.USER_PASSWORD,
+      database: SQLSecrets.DB_NAME,
     });
 
     conn.connect((error) => {

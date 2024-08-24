@@ -1,15 +1,14 @@
 const { MongoClient, ObjectId } = require('mongodb');
-const {username, db_host, db_password, db_name, collection_name} = require('/var/www/private/nodejs/mongodbCredentials')
+const { MongoSecrets, MongoCollections } = require('./DBConfigs');
 
-const uri = `mongodb://${username}:${db_password}@${db_host}:27017`;
+const uri = `mongodb://${MongoSecrets.USER}:${MongoSecrets.USER_PASSWORD}@${MongoSecrets.HOST}:${MongoSecrets.PORT}`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
-
 
 async function getBlogEntry(id_num=null) {
     try {
         await client.connect();
-        const database = client.db(db_name);
-        const collection = database.collection(collection_name);
+        const database = client.db(MongoSecrets.DB_NAME);
+        const collection = database.collection(MongoCollections.BLOG_ENTRIES);
     
         // Retrieve all documents from the collection
         let collection_entries;
@@ -30,8 +29,8 @@ async function getBlogEntry(id_num=null) {
 async function createBlogEntry(title_val, body_val, author_val){
     try{
         await client.connect();
-        const database = client.db(db_name);
-        const collection = database.collection(collection_name);
+        const database = client.db(MongoSecrets.DB_NAME);
+        const collection = database.collection(MongoCollections.BLOG_ENTRIES);
         const lastEntry = await collection.findOne({}, { sort: { _id: -1 } });
         const currentTime = new Date();
 
@@ -65,8 +64,8 @@ async function addCommentToBlogEntry(user, comment, blog_id){
         // Do something with the entry
         console.log(`MY COMMENT ${comment}`)
         await client.connect();
-        const database = client.db(db_name);
-        const collection = database.collection(collection_name);
+        const database = client.db(MongoSecrets.DB_NAME);
+        const collection = database.collection(MongoCollections.BLOG_ENTRIES);
         result = await collection.updateOne(
             {id: +blog_id}, { $push: {
                 comments: {'username': user, 'comment': comment}
@@ -92,8 +91,8 @@ async function addCommentToBlogEntry(user, comment, blog_id){
 async function removeBlogEntry(id_val){
     try{
         await client.connect();
-        const database = client.db(db_name);
-        const collection = database.collection(collection_name);
+        const database = client.db(MongoSecrets.DB_NAME);
+        const collection = database.collection(MongoCollections.BLOG_ENTRIES);
         const deleteResult = await collection.deleteOne({ id: +id_val });
         return deleteResult;
 

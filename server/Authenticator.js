@@ -1,6 +1,6 @@
 const { connectToDatabase, closeDatabaseConnection, performQuery } = require('./DatabaseConnector');
-const { cookie_table_name, users_table_name, reset_table_name } = require('/var/www/private/nodejs/mysqlCredentials')
 const crypto = require('crypto');
+const { SQLTableNames } = require('./DBConfigs');
 
 class SqlHandler{
 
@@ -12,7 +12,7 @@ class SqlHandler{
 
             const salt_rows = await performQuery(
                 db_connection, 
-                `SELECT salt FROM ${users_table_name} WHERE username = ?`,
+                `SELECT salt FROM ${SQLTableNames.USERS} WHERE username = ?`,
                 [username]
                 )
         
@@ -26,7 +26,7 @@ class SqlHandler{
             // Perform the database query
             const rows = await performQuery(
                 db_connection,
-                `SELECT * FROM ${users_table_name} WHERE username = ? AND password = SHA2(?, 256)`,
+                `SELECT * FROM ${SQLTableNames.USERS} WHERE username = ? AND password = SHA2(?, 256)`,
                 [username, password.concat(sql_salt)]
             );
             if (rows.length !== 1) {
@@ -35,14 +35,14 @@ class SqlHandler{
             // Update Session table
             await performQuery(
                 db_connection,
-                `DELETE FROM ${cookie_table_name} WHERE userId = ?`,
+                `DELETE FROM ${SQLTableNames.COOKIE} WHERE userId = ?`,
                 [rows[0].userId]
             );
 
             // After login insert the session cookie into the cookie table
             await performQuery(
                 db_connection,
-                `INSERT ${cookie_table_name} (userId, cookieData, created_at, expired_at) VALUES (?, ?, ?, ?)`,
+                `INSERT ${SQLTableNames.COOKIE} (userId, cookieData, created_at, expired_at) VALUES (?, ?, ?, ?)`,
                 [rows[0].userId, session.id, currentTime, session.cookie._expires]
             );
             return 1;
@@ -62,13 +62,13 @@ class SqlHandler{
         // check if username already taken
         const taken_usernames = await performQuery(
             db_connection,
-            `SELECT * FROM ${users_table_name} WHERE username = ?`,
+            `SELECT * FROM ${SQLTableNames.USERS} WHERE username = ?`,
             [username]
         );
 
         const taken_emails = await performQuery(
             db_connection,
-            `SELECT * FROM ${users_table_name} WHERE email = ?`,
+            `SELECT * FROM ${SQLTableNames.USERS} WHERE email = ?`,
             [email]
         )
         
@@ -85,7 +85,7 @@ class SqlHandler{
         const salt = crypto.randomBytes(8).toString('hex').slice(0, 16);
         const create_table = await performQuery(
             db_connection,
-            `INSERT INTO ${users_table_name} (username, password, email, salt, role, created_at, updated_at)` 
+            `INSERT INTO ${SQLTableNames.USERS} (username, password, email, salt, role, created_at, updated_at)` 
             +`values (?, SHA2(?, 256),? , ?, ?, NOW(), NOW());`,
             [username, password.concat(salt), email, salt, user_role]
         )
@@ -115,7 +115,7 @@ class SqlHandler{
 
             const cookie_table_data = await performQuery(
             db_connection,
-            `SELECT * FROM ${cookie_table_name} WHERE cookieData = ?`,
+            `SELECT * FROM ${SQLTableNames.COOKIE} WHERE cookieData = ?`,
             [session.id]
             );
 
@@ -130,7 +130,7 @@ class SqlHandler{
                 session.destroy();
                 await performQuery(
                     db_connection,
-                    `DELETE FROM ${cookie_table_name} WHERE userId = ?`,
+                    `DELETE FROM ${SQLTableNames.COOKIE} WHERE userId = ?`,
                     [user_of_cookie]
                 );
                 return null;
@@ -149,7 +149,7 @@ class SqlHandler{
             db_connection = await connectToDatabase();
             const profile_data = await performQuery(
             db_connection,
-            `SELECT userId, username, role FROM ${users_table_name} WHERE userId = ?`,
+            `SELECT userId, username, role FROM ${SQLTableNames.USERS} WHERE userId = ?`,
             [user_id]
         );
 
@@ -179,7 +179,7 @@ class SqlHandler{
             }
             const profile_data = await performQuery(
                 db_connection,
-                `SELECT userId, username, role FROM ${users_table_name} WHERE userId = ?`,
+                `SELECT userId, username, role FROM ${SQLTableNames.USERS} WHERE userId = ?`,
                 [user_id]
             );
 
@@ -206,7 +206,7 @@ class SqlHandler{
 
             await performQuery(
                 db_connection,
-                `DELETE FROM ${cookie_table_name} WHERE cookieData = ?`,
+                `DELETE FROM ${SQLTableNames.COOKIE} WHERE cookieData = ?`,
                 [session.id]
             );
 
@@ -225,7 +225,7 @@ class SqlHandler{
             db_connection = await connectToDatabase();
             const email_entry = await performQuery(
                 db_connection,
-                `SELECT * FROM ${users_table_name} WHERE email = ?`,
+                `SELECT * FROM ${SQLTableNames.USERS} WHERE email = ?`,
                 [email]
             );
             if(email_entry.length < 1){
@@ -243,7 +243,7 @@ class SqlHandler{
             
             const token_exist = await performQuery(
                 db_connection,
-                `DELETE FROM ${reset_table_name} WHERE userId = ?`,
+                `DELETE FROM ${SQLTableNames.RESET} WHERE userId = ?`,
                 [email_entry[0].userId]
             )
 
@@ -257,7 +257,7 @@ class SqlHandler{
             // Create a reset entry
             const reset_entry = await performQuery(
                 db_connection,
-                `INSERT INTO ${reset_table_name} (userId, resetToken, created_at, expired_at) VALUES (?, SHA2(?, 256), ?, ?)`,
+                `INSERT INTO ${SQLTableNames.RESET} (userId, resetToken, created_at, expired_at) VALUES (?, SHA2(?, 256), ?, ?)`,
                 [email_entry[0].userId, reset_token, currentTime, nextDayTime]
             )
 
@@ -287,7 +287,7 @@ class SqlHandler{
             db_connection = await connectToDatabase();
             const reset_entry = await performQuery(
                 db_connection,
-                `SELECT * FROM ${reset_table_name} WHERE resetToken = SHA2(?, 256)`,
+                `SELECT * FROM ${SQLTableNames.RESET} WHERE resetToken = SHA2(?, 256)`,
                 [token]
             )
             console.log(reset_entry)
@@ -306,7 +306,7 @@ class SqlHandler{
                 console.log("Expired time")
                 await performQuery(
                     db_connection,
-                    `DELETE FROM ${reset_table_name} WHERE resetId=${reset_entry[0].resetId}`
+                    `DELETE FROM ${SQLTableNames.RESET} WHERE resetId=${reset_entry[0].resetId}`
                 )
                 return -1
             }
@@ -323,7 +323,7 @@ class SqlHandler{
             // delete token with userID
             await performQuery(
                 db_connection,
-                `DELETE FROM ${reset_table_name} WHERE userId=?`,
+                `DELETE FROM ${SQLTableNames.RESET} WHERE userId=?`,
                 [userId]
             )
             
@@ -331,7 +331,7 @@ class SqlHandler{
 
             const create_table = await performQuery(
                 db_connection,
-                `UPDATE ${users_table_name} SET password = SHA2(?, 256), salt = ? WHERE userId = ?;`,
+                `UPDATE ${SQLTableNames.USERS} SET password = SHA2(?, 256), salt = ? WHERE userId = ?;`,
                 [newpassword.concat(salt), salt, userId]
             )
 

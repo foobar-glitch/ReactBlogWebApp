@@ -8,7 +8,7 @@ const Profile = () => {
 
     function displayInfo(profile_data){
         if(profile_data.status !== 200){
-            history('login',{ status: 404, message: 'Please login first' });
+            history('/login',{ status: 404, message: 'Please login first' });
         }else{
             console.log(profile_data)
             return(

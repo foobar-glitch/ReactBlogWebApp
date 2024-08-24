@@ -122,12 +122,12 @@ This is how the blog entires are stored as of now:
 ]
 ```
 
-### Start MariaDB Container
+## Start MariaDB Container
 To start a mariaDB container just run:
 ```bash
 docker run -p 127.0.0.1:${inport}:3306  --name mariadbserver -e MARIADB_ROOT_PASSWORD=${passord} -d mariadb:latest
 ```
-Run the python scripts _create\_db_ and optionally _create\_default\_users.py_ to create the initial databases
+Run the python scripts _create\_db_ and optionally _create\_default\_users.py_ to create the initial databases.
 To connect to the container just use:
 ```bash
 mariadb  -h 127.0.0.1 --port 33060 -u root -p
@@ -135,9 +135,9 @@ mariadb  -h 127.0.0.1 --port 33060 -u root -p
 And enter the password
 
 
-### httpd
+## httpd
 In Apache add this config
-#### Setup
+### Setup
 
 In this setup there is an apache for the react frontend it forwards the traffic to an internal backendserver (http) the connection to the apache can be HTTPS encrypted from internet to frontendserver but the connection from frontend-server to backend Node.js server (within LAN) is unencrypted and plain
 
@@ -168,8 +168,22 @@ In this setup there is an apache for the react frontend it forwards the traffic 
     ErrorLog "/var/log/httpd/react/error_log"
     CustomLog "/var/log/httpd/react/access_log" common
 </VirtualHost>
-
+```
 Running the apache in a docker container, when receiving an _/api_ request, forwarding the request to the host machine (host.docker.internal) to port 8080 and return the result. 
 TODO: Create use nodejs within maybe pm2 in a docker container
 TODO: Add mongoDB database
-###
+
+## Run Application
+
+To run the application first build the client front end. In _client/_
+```bash
+npm run build
+```
+Then build the httpd Dockerimage.
+```bash
+docker build -f docker/httpd_server_file -t httpd_server .
+```
+At last just excute the docker-compose file
+```bash
+docker-compose up
+```

@@ -4,7 +4,7 @@ services:
     container_name: my-httpd  # Set the container name
     ports:
       - "2a02:908:e845:3560::8070:80:80"  # Bind the specified IPv6 address and port
-      - "2a02:908:e845:3560::8070:8070:8070"  # Bind the specified IPv6 address and port
+      - "2a02:908:e845:3560::8070:443:443"  # Bind the specified IPv6 address and port
     depends_on:
       - mariadbserver  # Ensure Apache waits for MariaDB container
     extra_hosts:

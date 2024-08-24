@@ -1,5 +1,8 @@
 services:
   httpd:
+    build:
+      context: .  
+      dockerfile: docker/httpd_server_file
     image: httpd_server  # Use your specified image
     container_name: my-httpd  # Set the container name
     ports:

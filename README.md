@@ -127,6 +127,7 @@ To start a mariaDB container just run:
 ```bash
 docker run -p 127.0.0.1:${inport}:3306  --name mariadbserver -e MARIADB_ROOT_PASSWORD=${passord} -d mariadb:latest
 ```
+Run the python scripts _create\_db_ and optionally _create\_default\_users.py_ to create the initial databases
 To connect to the container just use:
 ```bash
 mariadb  -h 127.0.0.1 --port 33060 -u root -p
@@ -136,31 +137,39 @@ And enter the password
 
 ### httpd
 In Apache add this config
+#### Setup
+
+In this setup there is an apache for the react frontend it forwards the traffic to an internal backendserver (http) the connection to the apache can be HTTPS encrypted from internet to frontendserver but the connection from frontend-server to backend Node.js server (within LAN) is unencrypted and plain
+
 ```httpd
-<VirtualHost mydomain:80>
-    ServerName mydomain.com
-    DocumentRoot "/var/www/html/dojo-blog/client/build"
-    <Directory /var/www/html/dojo-blog/client/build>
+<VirtualHost *:80>
+    ServerName 2a02:908:e845:3560::8070
+    DocumentRoot "/usr/local/apache2/htdocs"
+    
+    <Directory "/usr/local/apache2/htdocs">
         Options -Indexes +FollowSymLinks
         AllowOverride All
         Require all granted
         
         <IfModule mod_rewrite.c>
-          RewriteEngine On
-          # Redirect to the root index.html for all requests not matching a file
-          RewriteCond %{REQUEST_FILENAME} !-f
-          RewriteCond %{REQUEST_FILENAME} !-d
-          RewriteRule ^ index.html [L]
-	      </IfModule>
+		  RewriteEngine On
+		  # Redirect to the root index.html for all requests not matching a file
+		  RewriteCond %{REQUEST_FILENAME} !-f
+		  RewriteCond %{REQUEST_FILENAME} !-d
+		  RewriteRule ^ index.html [L]
+		</IfModule>
     </Directory>
 
     <Location /api>
-      ProxyPass "http://127.0.0.1:8080"
-      ProxyPassReverse "http://127.0.0.1:8080"
+      ProxyPass "http://host.docker.internal:8080"
+      ProxyPassReverse "http://host.docker.internal:8080"
     </Location>
 
     ErrorLog "/var/log/httpd/react/error_log"
     CustomLog "/var/log/httpd/react/access_log" common
 </VirtualHost>
-```
+
+Running the apache in a docker container, when receiving an _/api_ request, forwarding the request to the host machine (host.docker.internal) to port 8080 and return the result. 
+TODO: Create use nodejs within maybe pm2 in a docker container
+TODO: Add mongoDB database
 ###

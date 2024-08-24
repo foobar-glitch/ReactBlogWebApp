@@ -2,11 +2,17 @@ FROM httpd:2.4
 
 RUN mkdir -p /var/www/html/dojo-blog/client/build/ && mkdir -p /var/log/httpd/react/ && mkdir /var/www/private/tls/ -p
 
-COPY docker/apache_config/certs/ /usr/local/apache2/conf/
-COPY docker/apache_config/httpd-vhosts.conf /usr/local/apache2/conf/extra/httpd-vhosts.conf
-COPY docker/apache_config/httpd.conf /usr/local/apache2/conf/httpd.conf
-
 COPY client/build /usr/local/apache2/htdocs/
 
-EXPOSE 443
+COPY docker/apache_config/httpd.conf /usr/local/apache2/conf/httpd.conf
+COPY docker/apache_config/certs/ /usr/local/apache2/conf/
+COPY docker/apache_config/httpd-vhosts.conf /usr/local/apache2/conf/extra/httpd-vhosts.conf
+
+
+#RUN apt-get update && \
+#    apt-get install -y net-tools
+
+#EXPOSE 443
+#EXPOSE 80
+#EXPOSE 8070
 

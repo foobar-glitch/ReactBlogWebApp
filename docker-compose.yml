@@ -1,0 +1,28 @@
+services:
+  httpd:
+    image: httpd_server  # Use your specified image
+    container_name: my-httpd  # Set the container name
+    ports:
+      - "2a02:908:e845:3560::8070:80:80"  # Bind the specified IPv6 address and port
+      - "2a02:908:e845:3560::8070:8070:8070"  # Bind the specified IPv6 address and port
+    depends_on:
+      - mariadbserver  # Ensure Apache waits for MariaDB container
+    extra_hosts:
+    - "host.docker.internal:host-gateway"
+
+
+  mariadbserver:
+    image: mariadb:11.5.2
+    container_name: mariadbserver
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+    ports:
+      - "127.0.0.1:33060:3306"
+  
+
+
+volumes:
+  mariadb_data:  # Named volume for MariaDB data persistence
+
+networks:
+  front_end:  # Define the front_end network

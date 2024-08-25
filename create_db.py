@@ -25,12 +25,14 @@ RESET_TABLE = os.getenv('MARIADB_RESET_TABLE')
 
 root_connection = mariadb.connect(
     host="127.0.0.1",
-    user=ROOT_USER_NAME,
+    user="root",
     port=SQL_PORT,
-    passwd=ROOT_USER_PASSWORD,
+    passwd="root",
 )
 
 cursor = root_connection.cursor()
+#change password of root to new password
+cursor.execute(f"ALTER USER `root`@`%` IDENTIFIED BY '{ROOT_USER_PASSWORD}'")
 cursor.execute(f"CREATE DATABASE IF NOT EXISTS {DB_NAME}")
 cursor.execute(f"CREATE USER IF NOT EXISTS `{USER_NAME}`@`%` IDENTIFIED BY '{USER_PASSWORD}'")
 cursor.execute(f"GRANT ALL privileges ON `{DB_NAME}`.* TO `{USER_NAME}`@`%`")

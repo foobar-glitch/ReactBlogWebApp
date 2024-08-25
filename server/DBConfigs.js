@@ -19,9 +19,9 @@ const SQLTableNames = {
 };
 
 const MongoSecrets = {
-    HOST: process.env.MONGO_HOST,
-    PORT: process.env.MONGO_PORT,
-    USER: process.env.MONGO_USER,
+    HOST: process.env.MONGODB_HOST,
+    PORT: process.env.MONGODB_PORT,
+    USER: process.env.MONGODB_USER,
     USER_PASSWORD: process.env.MONGO_USER_PASSWORD,
     DB_NAME: process.env.MONGO_DB_NAME,
 };

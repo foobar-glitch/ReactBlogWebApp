@@ -22,7 +22,7 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - /var/www/private/nodejs/:/var/www/private/nodejs/  # Mount the volume
+      - /var/www/private/nodejs/userdata:/var/www/private/nodejs/  # Mount the volume
     networks:
       - frontend_network
       - backend_network
@@ -34,7 +34,7 @@ services:
     image: mongo:6.0.17
     container_name: mongodb-server
     env_file:
-      - /var/www/private/nodejs/.env.mongo.internals
+      - /var/www/private/nodejs/rootdata/.env.mongo.internals
     ports:
       - "27017:27017"
     networks:
@@ -44,7 +44,7 @@ services:
     image: mariadb:11.5.2
     container_name: mariadb-server
     env_file:
-      - /var/www/private/nodejs/.env.sql.internals
+      - /var/www/private/nodejs/rootdata/.env.sql.internals
     ports:
       - "3306:3306"
     networks:

@@ -19,6 +19,11 @@ services:
       dockerfile: docker/node_backend_server_file
     image: nodejs-server
     container_name: backend-running  # Set a custom name for the container
+    environment:
+      - MARIADB_HOST=mariadbserver
+      - MARIADB_PORT=3306
+      - MONGODB_HOST=mongodbserver
+      - MONGODB_PORT=27017
     ports:
       - "8080:8080"
     volumes:

@@ -6,7 +6,7 @@ import os
 load_dotenv(".env")
 load_dotenv("/var/www/private/nodejs/.env.sql.internals")
 
-SQL_HOST = os.getenv('MARIADB_HOST')
+#SQL_HOST = os.getenv('MARIADB_HOST')
 SQL_PORT = int(os.getenv('MARIADB_PORT'))
 ROOT_USER_NAME = os.getenv('MARIADB_ROOT_USERNAME')
 ROOT_USER_PASSWORD = os.getenv('MARIADB_ROOT_PASSWORD')
@@ -19,9 +19,9 @@ USERS_TABLE = os.getenv('MARIADB_USER_TABLE')
 COOKIE_TABLE = os.getenv('MARIADB_COOKIE_TABLE')
 RESET_TABLE = os.getenv('MARIADB_RESET_TABLE')
 
-
+print(ROOT_USER_NAME)
 root_connection = mariadb.connect(
-    host=SQL_HOST,
+    host="127.0.0.1",
     user=ROOT_USER_NAME,
     port=SQL_PORT,
     passwd=ROOT_USER_PASSWORD,
@@ -31,7 +31,6 @@ cursor = root_connection.cursor()
 cursor.execute(f"CREATE DATABASE IF NOT EXISTS {DB_NAME}")
 cursor.execute(f"CREATE USER IF NOT EXISTS `{USER_NAME}`@`%` IDENTIFIED BY '{USER_PASSWORD}'")
 cursor.execute(f"GRANT ALL privileges ON `{DB_NAME}`.* TO `{USER_NAME}`@`%`")
-
 root_connection.close()
 
 # Connect to database as non root to avoid mitigate damage to db

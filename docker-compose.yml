@@ -18,16 +18,17 @@ services:
       context: .
       dockerfile: docker/node_backend_server_file
     image: nodejs-server
+    env_file:
+      - /var/www/private/nodejs/userdata/.env.mongo.internals
+      - /var/www/private/nodejs/userdata/.env.sql.internals
     container_name: backend-running  # Set a custom name for the container
     environment:
       - MARIADB_HOST=mariadbserver
       - MARIADB_PORT=3306
-      - MONGODB_HOST=mongodbserver
-      - MONGODB_PORT=27017
+      - MONGO_HOST=mongodbserver
+      - MONGO_PORT=27017
     ports:
       - "8080:8080"
-    volumes:
-      - /var/www/private/nodejs/userdata:/var/www/private/nodejs/  # Mount the volume
     networks:
       - frontend_network
       - backend_network

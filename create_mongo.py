@@ -16,29 +16,16 @@ ROOT_PASSWORD = os.getenv('MONGO_ROOT_PASSWORD')
 USER = os.getenv('MONGO_USER')
 USER_PASSWORD = os.getenv('MONGO_USER_PASSWORD')
 
-
-"""
-db.createUser(
-  {
-    user: "myUserAdmin",
-    pwd: "abc123",
-    roles: [ { role: "userAdminAnyDatabase", db: "admin" }, 
-             { role: "dbAdminAnyDatabase", db: "admin" }, 
-             { role: "readWriteAnyDatabase", db: "admin" } ]
-  }
-)
-"""
 root_connection = MongoClient(f'mongodb://{MONGO_HOST}:{MONGO_PORT}/')
 
-db = root_connection.admin
-db.command("updateUser", "admin",pwd=ROOT_PASSWORD)
-db.command("createUser", USER, pwd=USER_PASSWORD)
+root_db = root_connection.admin
+root_db.command('createUser', 'root', pwd=ROOT_PASSWORD, roles=["userAdminAnyDatabase", "dbAdminAnyDatabase", "readWriteAnyDatabase"])
+root_db.command("updateUser", "root", pwd=ROOT_PASSWORD)
+root_db.command(
+    "createUser", USER, pwd=USER_PASSWORD, 
+    roles=[
+        { "role":"readWrite","db":f"{DB_NAME}"}
+      ]
+    )
+# Switch to user
 root_connection.close()
-
-user_connection = MongoClient(f"mongodb://{USER}:{USER_PASSWORD}@{MONGO_HOST}")
-
-#db.entries.find()
-#uri = f"mongodb://{username}:{password}@{host}:{port}/"
-#username = "newuser"
-#password = "newpassword"
-#roles = ["readWrite"]  # Roles assigned to the user

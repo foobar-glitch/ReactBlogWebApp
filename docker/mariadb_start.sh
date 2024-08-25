@@ -8,4 +8,5 @@ docker run --rm -v /var/www/private/nodejs/:/var/www/private/nodejs/ --name my-n
 #docker run -d --entrypoint "/bin/sh" -v /var/www/private/nodejs/:/var/www/private/nodejs/ --name my-nodejs nodejs_server 
 #docker run -d -it --entrypoint /bin/sh --name my-nodejs -v /var/www/private/nodejs/:/var/www/private/nodejs/ nodejs_server
 # mariadb  -h 127.0.0.1 --port 3306 -u root -p
+# mongosh mongodb://127.0.0.1 -u root
 # docker rm -v $(docker ps --filter status=exited -q)

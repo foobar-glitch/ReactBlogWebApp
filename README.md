@@ -141,10 +141,6 @@ In Apache add this config
 Create an environment for the SQL Datbases like this
 ```.env
 # MariaDB config
-## .env.sql.config
-MARIADB_HOST='127.0.0.1'
-MARIADB_PORT = 3306
-
 ##.env.sql.internals
 MARIADB_ROOT_USERNAME=''
 MARIADB_ROOT_PASSWORD=''
@@ -159,9 +155,6 @@ MARIADB_RESET_TABLE='reset_table'
 
 
 # MongoDB config
-## .env.mongo.config
-MONGO_HOST=''
-MONGO_PORT=27017
 # .env.mongo.internals
 ## credentials
 MONGO_USER=''

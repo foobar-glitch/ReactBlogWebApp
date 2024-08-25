@@ -1,9 +1,7 @@
 const dotenv = require('dotenv')
 const secrets_path = "/var/www/private/nodejs"
 
-dotenv.config({ path: `${secrets_path}/secrets_mongodb.env`, encoding: 'utf-8'});
-dotenv.config({ path: `${secrets_path}/secrets_mysql.env`, encoding: 'utf-8'});
-
+dotenv.config({ path: `${secrets_path}/.env_databases`, encoding: 'utf-8'});
 const SQLSecrets = {
     HOST: process.env.MARIADB_HOST,
     PORT: process.env.MARIADB_PORT,

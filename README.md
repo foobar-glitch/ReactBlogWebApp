@@ -137,6 +137,34 @@ And enter the password
 
 ## httpd
 In Apache add this config
+#### Backend Server
+Create an environment for the SQL Datbases like this
+```.env
+# MariaDB Configs
+MARIADB_HOST=''
+MARIADB_PORT = 3306
+MARIADB_ROOT_PASSWORD=''
+
+MARIADB_DATABASE=''
+MARIADB_USER=''
+MARIADB_USER_PASSWORD=''
+
+MARIADB_USER_TABLE='users'
+MARIADB_COOKIE_TABLE='cookie_table'
+MARIADB_RESET_TABLE='reset_table'
+
+
+# MongoDB Configs
+MONGO_HOST=''
+MONGO_PORT=27017
+
+MONGO_USER='blog_agent'
+MONGO_USER_PASSWORD=''
+MONGO_DB_NAME='blogs'
+MONGO_COLLECTION_NAME='entries'
+```
+
+
 ### Setup
 
 In this setup there is an apache for the react frontend it forwards the traffic to an internal backendserver (http) the connection to the apache can be HTTPS encrypted from internet to frontendserver but the connection from frontend-server to backend Node.js server (within LAN) is unencrypted and plain

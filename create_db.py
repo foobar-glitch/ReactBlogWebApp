@@ -1,7 +1,21 @@
 import mariadb
-import sys
-sys.path.append('/')
-from var.www.private.python.mysqlcredentials import SQL_HOST, SQL_PORT, ROOT_USER_NAME, ROOT_USER_PASSWORD, DB_NAME, USER_NAME, USER_PASSWORD
+from dotenv import load_dotenv
+import os
+
+load_dotenv(f"/var/www/private/nodejs/.env_databases")
+
+SQL_HOST = os.getenv('MARIADB_HOST')
+SQL_PORT = int(os.getenv('MARIADB_PORT'))
+ROOT_USER_NAME = os.getenv('MARIADB_ROOT_USERNAME')
+ROOT_USER_PASSWORD = os.getenv('MARIADB_ROOT_PASSWORD')
+
+USER_NAME = os.getenv('MARIADB_USER')
+USER_PASSWORD = os.getenv('MARIADB_USER_PASSWORD')
+
+DB_NAME = os.getenv('MARIADB_DATABASE')
+USERS_TABLE = os.getenv('MARIADB_USER_TABLE')
+COOKIE_TABLE = os.getenv('MARIADB_COOKIE_TABLE')
+RESET_TABLE = os.getenv('MARIADB_RESET_TABLE')
 
 
 root_connection = mariadb.connect(
@@ -28,8 +42,8 @@ user_connection = mariadb.connect(
 )
 
 cursor = user_connection.cursor()
-create_user_table = """
-CREATE TABLE IF NOT EXISTS users (
+create_user_table = f"""
+CREATE TABLE IF NOT EXISTS {USERS_TABLE} (
     userId INT(11) NOT NULL AUTO_INCREMENT,
     username VARCHAR(255) NOT NULL UNIQUE,
     email VARCHAR(255) NOT NULL UNIQUE,
@@ -42,8 +56,8 @@ CREATE TABLE IF NOT EXISTS users (
 );
 """
 
-create_cookie_table = """
-CREATE TABLE IF NOT EXISTS cookie_table (
+create_cookie_table = f"""
+CREATE TABLE IF NOT EXISTS {COOKIE_TABLE} (
     cookieId INT(11) NOT NULL AUTO_INCREMENT,
     userId INT(11) NOT NULL,
     cookieData VARCHAR(255) NOT NULL,
@@ -56,8 +70,8 @@ CREATE TABLE IF NOT EXISTS cookie_table (
 );
 """
 
-create_reset_table = """
-CREATE TABLE IF NOT EXISTS reset_table (
+create_reset_table = f"""
+CREATE TABLE IF NOT EXISTS {RESET_TABLE} (
     resetId INT(11) NOT NULL AUTO_INCREMENT,
     userId INT(11) NOT NULL,
     resetToken VARCHAR(255) NOT NULL,

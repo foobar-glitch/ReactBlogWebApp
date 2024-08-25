@@ -24,3 +24,4 @@ yarn-error.log*
 #sql/
 docker/mariadb_start.sh
 client/src/components/Universals.js
+*pycache*

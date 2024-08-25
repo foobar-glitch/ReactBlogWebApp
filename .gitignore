@@ -26,3 +26,4 @@ docker/mariadb_start.sh
 client/src/components/Universals.js
 *pycache*
 .env
+mariadb_start.sh

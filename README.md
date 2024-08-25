@@ -142,8 +142,6 @@ Create an environment for the SQL Datbases like this
 ```.env
 # MariaDB config
 ##.env.sql.internals
-MARIADB_ROOT_USERNAME=''
-MARIADB_ROOT_PASSWORD=''
 ### Credentials
 MARIADB_USER=''
 MARIADB_USER_PASSWORD=''

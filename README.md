@@ -169,35 +169,32 @@ In this setup there is an apache for the react frontend it forwards the traffic 
 
 ```httpd
 <VirtualHost *:80>
-    ServerName 2a02:908:e845:3560::8070
     DocumentRoot "/usr/local/apache2/htdocs"
     
     <Directory "/usr/local/apache2/htdocs">
         Options -Indexes +FollowSymLinks
         AllowOverride All
         Require all granted
-        
+
         <IfModule mod_rewrite.c>
-		  RewriteEngine On
-		  # Redirect to the root index.html for all requests not matching a file
-		  RewriteCond %{REQUEST_FILENAME} !-f
-		  RewriteCond %{REQUEST_FILENAME} !-d
-		  RewriteRule ^ index.html [L]
-		</IfModule>
+            RewriteEngine On
+            # Redirect all requests not matching a file or directory to index.html
+            RewriteCond %{REQUEST_FILENAME} !-f
+            RewriteCond %{REQUEST_FILENAME} !-d
+            RewriteRule ^ index.html [L]
+        </IfModule>
     </Directory>
 
     <Location /api>
-      ProxyPass "http://host.docker.internal:8080"
-      ProxyPassReverse "http://host.docker.internal:8080"
+      ProxyPass "http://backendserver:8080"
+      ProxyPassReverse "http://backendserver:8080"
     </Location>
 
     ErrorLog "/var/log/httpd/react/error_log"
     CustomLog "/var/log/httpd/react/access_log" common
 </VirtualHost>
 ```
-Running the apache in a docker container, when receiving an _/api_ request, forwarding the request to the host machine (host.docker.internal) to port 8080 and return the result. 
-TODO: Create use nodejs within maybe pm2 in a docker container
-TODO: Add mongoDB database
+Running the apache in a docker container, when receiving an _/api_ request, forwarding the service backendserver to port 8080 and return the result. 
 
 ## Run Application
 
@@ -213,3 +210,9 @@ At last just excute the docker-compose file
 ```bash
 docker-compose up
 ```
+Once the services are running just run the script to initialize the databases
+```
+./init_db.sh
+```
+You could mount MariaDB and MongoDB to a persistent storage otherwise it will be ephermal/volantile storage that 
+is deleted once 

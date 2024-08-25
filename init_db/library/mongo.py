@@ -42,7 +42,7 @@ def create_blog_entries(MONGO_HOST, MONGO_PORT, DB_NAME, COLLECTION, USER, USER_
         'title': adming_title,
         'body': admin_body,
         'author': admin_username,
-        'id': last_entry_id + 1,
+        'id': 1,
         'comments': [ { 'username': 'user', 'comment': 'Great Website.' }]
     }
 
@@ -58,7 +58,7 @@ def create_blog_entries(MONGO_HOST, MONGO_PORT, DB_NAME, COLLECTION, USER, USER_
         'title': author_tile,
         'body': author_body,
         'author': auhor_username,
-        'id': last_entry_id + 1,
+        'id': 2,
         'comments': [ { 'username': 'user', 'comment': 'Nice Post' }]
     }
 

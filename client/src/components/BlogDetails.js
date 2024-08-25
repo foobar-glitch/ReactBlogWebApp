@@ -10,13 +10,20 @@ const BlogDetails = () =>{
     const { data, error, isPending } = useFetchGET(`${blogs_endpoint}/${id}`);
     const history = useNavigate();
     const [comment, setComment] = useState('');
+    const [deleteBlogRes, setDeleteBlogRes] = useState(null)
 
     const handleBlogDeletion = () => {
         fetch(`${blogs_endpoint}/${id}`,{
             method: 'DELETE',
             credentials: 'include' 
-        }).then(() => {
-            history('/');
+        }).then((res) => {
+            if(!res.ok){
+                throw Error('Could not fetch the data for that resource')
+            }
+            return res.json();
+        }).then((data) =>{
+            setDeleteBlogRes(data)
+            console.log(data)
         })
     }
 
@@ -52,6 +59,7 @@ const BlogDetails = () =>{
 
     return (
         <div className="blog-details">
+            { deleteBlogRes && <div className='delete-response'>{deleteBlogRes.message}</div> }
             { isPending && <div>Loading...</div>}
             { error && <div>{ error }</div> }
             { data && data.status === 200 && (

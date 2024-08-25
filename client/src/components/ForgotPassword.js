@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { forgot_password_enpoint } from './Universals'
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const ForgotPassword = () => {
     const [email, setEmail] = useState('');
     const [errorMessage, setErrorMessage] = useState(null)
-    const history = useNavigate();
+    const [success, setSucess] = useState(null)
 
     const handleForgotPassword = (e) => {
         const loginForm = { email };
@@ -29,14 +29,14 @@ const ForgotPassword = () => {
                 setErrorMessage(data.message);
             }
             else{
-                history('/');
-                window.location.reload();
+                setSucess(1)
             }
         })
     }
 
     return (
         <div className="register">
+            {!success &&
             <form onSubmit={handleForgotPassword}>
                 <label>E-Mail: </label>
                 <input type="email" 
@@ -44,10 +44,17 @@ const ForgotPassword = () => {
                     value={email} 
                     required>
                 </input>
-                {errorMessage && 
-                <div className="error-message">{errorMessage}</div>}
+                {errorMessage &&  <div className="error-message">{errorMessage}</div>}
                 <button type="submit">Reset Password</button>
             </form>
+            }
+            {success && 
+            <div className='sucess'>
+                If that E-Mail exists you will get a reset  link. <br />
+            <Link to="/">Back To Mainpage</Link>
+            </div>
+            
+            }
         </div>
     )
 }

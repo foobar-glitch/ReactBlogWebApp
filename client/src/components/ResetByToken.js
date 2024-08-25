@@ -9,8 +9,7 @@ const ResetByToken = () => {
     const location = useLocation();
     const [password, setPassword] = useState('');
     const [verifyPassword, setVerifyPassword] = useState('');
-    const [errorMessage, setErrorMessage] = useState(null)
-    //const [token, setToken] = useState('');
+    const [resetSuccessfull, setResetsuccessfull] = useState(false)
 
     const getQueryParams = () => {
         const params = new URLSearchParams(location.search);
@@ -46,7 +45,11 @@ const ResetByToken = () => {
                 return res.json();
             }
         ).then((data) => {
-            console.log(data)
+            if(data.status === 200){
+                setResetsuccessfull(true)
+            }else{
+                setResetsuccessfull(false)
+            }
         })
     }
 
@@ -86,8 +89,9 @@ const ResetByToken = () => {
     const { data: tokenResponse, isPending, error } = useFetchGET(`${reset_by_token_endpoint}?token=${token}`);
     return(
         <div>
-            {!isPending && tokenResponse && tokenResponse.status===202 && give_welcome(tokenResponse.username)}
-            {!isPending && tokenResponse && tokenResponse.status===202 && new_password(token)}
+            {!isPending && !resetSuccessfull && tokenResponse && tokenResponse.status===202 && give_welcome(tokenResponse.username)}
+            {!isPending && !resetSuccessfull && tokenResponse && tokenResponse.status===202 && new_password(token)}
+            {resetSuccessfull && <div className='password-reset'>Password reset was successfull</div>}
         </div>
     );
 }

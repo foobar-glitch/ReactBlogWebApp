@@ -7,7 +7,6 @@ const Create = () => {
     const [body, setBody] = useState('');
     //const [author, setAuthor] = useState(null);
     const [isPending, setIsPending] = useState(false);
-    const { data: profile_data, isPending: profileFetchingisPending, error } = useFetchGET(authenticate_endpoint, []);
     const [authencationMessage, setAuthencationMessage] = useState(null);
 
     const handleSubmit = (e) => {

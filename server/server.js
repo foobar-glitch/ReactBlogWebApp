@@ -125,11 +125,11 @@ app.delete('/blogs/:id', async (req, res) => {
         const deleteResult = await removeBlogEntry(req.params.id);
         return res.json({
             status: 200,
-            message: deleteResult
+            message: "Succesfully deleted the blog."
         })
 
     }else{
-        return res.json({status: 404, message: "Invalid User"});
+        return res.json({status: 404, message: "You need to be the author of the blog to delete it"});
     }
 });
 

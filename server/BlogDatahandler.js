@@ -1,6 +1,5 @@
 const { MongoClient, ObjectId } = require('mongodb');
 const { MongoSecrets, MongoCollections } = require('./DBConfigs');
-
 const uri = `mongodb://${MongoSecrets.USER}:${MongoSecrets.USER_PASSWORD}@${MongoSecrets.HOST}:${MongoSecrets.PORT}`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 

@@ -8,7 +8,7 @@ def give_mysql_env():
     load_dotenv("/var/www/private/nodejs/userdata/.env.sql.internals")
 
     SQL_HOST = "127.0.0.1"
-    SQL_PORT = int(os.getenv('MARIADB_PORT'))
+    SQL_PORT = 3306#int(os.getenv('MARIADB_PORT'))
     ROOT_USER_PASSWORD = os.getenv('MARIADB_ROOT_PASSWORD')
 
     USER_NAME = os.getenv('MARIADB_USER')

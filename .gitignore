@@ -25,5 +25,5 @@ yarn-error.log*
 docker/mariadb_start.sh
 client/src/components/Universals.js
 *pycache*
-.env
+.env*
 mariadb_start.sh

@@ -1,0 +1,21 @@
+services:
+  # dont run backend and front end to run locally
+  mongodbserver:
+    image: mongo:6.0.17
+    container_name: mongodb-server
+    ports:
+      - "27017:27017"
+    networks:
+      - backend_network
+
+  mariadbserver:
+    image: mariadb:11.5.2
+    container_name: mariadb-server
+    ports:
+      - "3306:3306"
+    networks:
+      - backend_network
+
+networks:
+  backend_network:
+    driver: bridge

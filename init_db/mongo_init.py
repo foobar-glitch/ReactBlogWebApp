@@ -7,7 +7,7 @@ def give_mongo_env():
     load_dotenv("/var/www/private/nodejs/rootdata/.env.mongo.internals")
     load_dotenv("/var/www/private/nodejs/userdata/.env.mongo.internals")
     MONGO_HOST = "127.0.0.1"
-    MONGO_PORT = os.getenv('MONGO_PORT')
+    MONGO_PORT = 27017 #os.getenv('MONGO_PORT')
 
     DB_NAME = os.getenv('MONGO_DB_NAME')
     COLLECTION = os.getenv('MONGO_COLLECTION_NAME')

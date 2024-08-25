@@ -1,3 +1,5 @@
+require('dotenv').config(".env");
+
 const SQLSecrets = {
     HOST: process.env.MARIADB_HOST,
     PORT: process.env.MARIADB_PORT,

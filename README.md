@@ -140,26 +140,33 @@ In Apache add this config
 #### Backend Server
 Create an environment for the SQL Datbases like this
 ```.env
-# MariaDB Configs
-MARIADB_HOST=''
+# MariaDB config
+## .env.sql.config
+MARIADB_HOST='127.0.0.1'
 MARIADB_PORT = 3306
-MARIADB_ROOT_PASSWORD=''
 
-MARIADB_DATABASE=''
+##.env.sql.internals
+MARIADB_ROOT_USERNAME=''
+MARIADB_ROOT_PASSWORD=''
+### Credentials
 MARIADB_USER=''
 MARIADB_USER_PASSWORD=''
-
+### STRUCTURE
+MARIADB_DATABASE='user_db'
 MARIADB_USER_TABLE='users'
 MARIADB_COOKIE_TABLE='cookie_table'
 MARIADB_RESET_TABLE='reset_table'
 
 
-# MongoDB Configs
+# MongoDB config
+## .env.mongo.config
 MONGO_HOST=''
 MONGO_PORT=27017
-
-MONGO_USER='blog_agent'
+# .env.mongo.internals
+## credentials
+MONGO_USER=''
 MONGO_USER_PASSWORD=''
+## TABLES
 MONGO_DB_NAME='blogs'
 MONGO_COLLECTION_NAME='entries'
 ```

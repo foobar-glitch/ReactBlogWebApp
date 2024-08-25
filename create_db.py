@@ -4,9 +4,12 @@ import os
 
 #load_dotenv("/var/www/private/nodejs/.env.sql.config")
 load_dotenv(".env")
-load_dotenv("/var/www/private/nodejs/.env.sql.internals")
+load_dotenv("/var/www/private/nodejs/rootdata/.env.sql.internals")
+load_dotenv("/var/www/private/nodejs/userdata/.env.sql.internals")
 
-#SQL_HOST = os.getenv('MARIADB_HOST')
+# From Host machine SQL_HOST is the localhost
+SQL_HOST = "127.0.0.1"
+
 SQL_PORT = int(os.getenv('MARIADB_PORT'))
 ROOT_USER_NAME = os.getenv('MARIADB_ROOT_USERNAME')
 ROOT_USER_PASSWORD = os.getenv('MARIADB_ROOT_PASSWORD')
@@ -19,7 +22,7 @@ USERS_TABLE = os.getenv('MARIADB_USER_TABLE')
 COOKIE_TABLE = os.getenv('MARIADB_COOKIE_TABLE')
 RESET_TABLE = os.getenv('MARIADB_RESET_TABLE')
 
-print(ROOT_USER_NAME)
+
 root_connection = mariadb.connect(
     host="127.0.0.1",
     user=ROOT_USER_NAME,

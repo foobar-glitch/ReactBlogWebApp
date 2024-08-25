@@ -3,9 +3,10 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv(".env")
-load_dotenv("/var/www/private/nodejs/.env.sql.internals")
+load_dotenv("/var/www/private/nodejs/rootdata/.env.sql.internals")
+load_dotenv("/var/www/private/nodejs/userdata/.env.sql.internals")
 
-SQL_HOST = os.getenv('MARIADB_HOST')
+SQL_HOST = "127.0.0.1"
 SQL_PORT = int(os.getenv('MARIADB_PORT'))
 USER_NAME = os.getenv('MARIADB_USER')
 USER_PASSWORD = os.getenv('MARIADB_USER_PASSWORD')

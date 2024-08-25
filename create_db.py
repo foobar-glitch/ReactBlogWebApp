@@ -2,7 +2,8 @@ import mariadb
 from dotenv import load_dotenv
 import os
 
-load_dotenv("/var/www/private/nodejs/.env.sql.config")
+#load_dotenv("/var/www/private/nodejs/.env.sql.config")
+load_dotenv(".env")
 load_dotenv("/var/www/private/nodejs/.env.sql.internals")
 
 SQL_HOST = os.getenv('MARIADB_HOST')

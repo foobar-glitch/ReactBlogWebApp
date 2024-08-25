@@ -2,7 +2,7 @@ import mariadb
 from dotenv import load_dotenv
 import os
 
-load_dotenv("/var/www/private/nodejs/.env.sql.config")
+load_dotenv(".env")
 load_dotenv("/var/www/private/nodejs/.env.sql.internals")
 
 SQL_HOST = os.getenv('MARIADB_HOST')
@@ -28,12 +28,12 @@ INSERT INTO {USERS_TABLE} (userID, username, email, password, salt, role, create
 VALUES (1, 'admin', 'admin@mail.com', SHA2(CONCAT('admin','eabb53460fa953b6'), 256), 'eabb53460fa953b6', 'admin', NOW(), NOW());
 """
 
-create_author = """
+create_author = f"""
     INSERT INTO {USERS_TABLE} (userID, username, email, password, salt, role, created_at, updated_at) 
     VALUES (2, 'author', 'author@mail.com', SHA2(CONCAT('author','6f7f4b9659cbfbe6'), 256), '6f7f4b9659cbfbe6', 'author', NOW(), NOW());
 """
 
-create_user = """
+create_user = f"""
     INSERT INTO {USERS_TABLE} (userID, username, email, password, salt, role, created_at, updated_at) 
     VALUES  (3, 'user', 'user@mail.com', SHA2(CONCAT('user','391feef6e93e0b29'), 256), '391feef6e93e0b29', 'user', NOW(), NOW());
 """

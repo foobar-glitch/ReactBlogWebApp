@@ -1,31 +1,57 @@
 services:
-  httpd:
+  frontendserver:
     build:
       context: .  
       dockerfile: docker/httpd_server_file
-    image: httpd_server  # Use your specified image
-    container_name: my-httpd  # Set the container name
+    image: apache-server  # Use your specified image
+    container_name: frontend-running  # Set the container name
     ports:
-      - "2a02:908:e845:3560::8070:80:80"  # Bind the specified IPv6 address and port
-      - "2a02:908:e845:3560::8070:443:443"  # Bind the specified IPv6 address and port
+      - "${APACHE_IPV6}:80:80"  # Bind the specified IPv6 address and port
+      - "${APACHE_IPV6}:443:443"  # Bind the specified IPv6 address and port
     depends_on:
-      - mariadbserver  # Ensure Apache waits for MariaDB container
-    extra_hosts:
-    - "host.docker.internal:host-gateway"
-
+      - backendserver  # Ensure Apache waits for MariaDB container
+    networks:
+      - frontend_network
+  
+  backendserver:
+    build:
+      context: .
+      dockerfile: docker/node_backend_server_file
+    image: nodejs-server
+    container_name: backend-running  # Set a custom name for the container
+    ports:
+      - "8080:8080"
+    volumes:
+      - /var/www/private/nodejs/:/var/www/private/nodejs/  # Mount the volume
+    networks:
+      - frontend_network
+      - backend_network
+    depends_on:
+      - mariadbserver
+      - mongodbserver
+    
+  mongodbserver:
+    image: mongo:6.0.17
+    container_name: mongodb-server
+    env_file:
+      - /var/www/private/nodejs/.env.mongo.internals
+    ports:
+      - "27017:27017"
+    networks:
+      - backend_network
 
   mariadbserver:
     image: mariadb:11.5.2
-    container_name: mariadbserver
-    environment:
-      MARIADB_ROOT_PASSWORD: root
+    container_name: mariadb-server
+    env_file:
+      - /var/www/private/nodejs/.env.sql.internals
     ports:
-      - "127.0.0.1:33060:3306"
-  
-
-
-volumes:
-  mariadb_data:  # Named volume for MariaDB data persistence
+      - "3306:3306"
+    networks:
+      - backend_network
 
 networks:
-  front_end:  # Define the front_end network
+  frontend_network:
+    driver: bridge
+  backend_network:
+    driver: bridge

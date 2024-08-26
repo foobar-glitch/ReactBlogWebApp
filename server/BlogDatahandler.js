@@ -54,34 +54,58 @@ async function createBlogEntry(title_val, body_val, author_val){
 
 }
 
-async function addCommentToBlogEntry(user, comment, blog_id){
+async function addCommentToBlogEntry(userId, user, comment, blog_id){
     try {
         const entry = await getBlogEntry(blog_id);
         if(!entry){
             return 0;
         }
         // Do something with the entry
-        console.log(`MY COMMENT ${comment}`)
+        const currentTime = new Date();
         await client.connect();
         const database = client.db(MongoSecrets.DB_NAME);
         const collection = database.collection(MongoCollections.BLOG_ENTRIES);
+
+        // Step 1: Find the blog post by id and fetch the highest commentId
+        const blogPost = await collection.findOne({ id: +blog_id }, { projection: { comments: 1 } });
+        let newCommentId = 0;
+        if (blogPost && blogPost.comments && blogPost.comments.length > 0) {
+            // Extract the highest commentId from the existing comments
+            const maxComment = blogPost.comments.reduce((max, comment) => {
+                return comment.commentId > max ? comment.commentId : max;
+            }, 0);
+            newCommentId = maxComment + 1;
+        }
+
         result = await collection.updateOne(
             {id: +blog_id}, { $push: {
-                comments: {'username': user, 'comment': comment}
+                comments: {
+                    $each: [{
+                        commentId: newCommentId,
+                        userId: userId,
+                        username: user,
+                        comment: comment,
+                        createdAt: currentTime.toUTCString()
+                    }],
+                    $position: 0 // Insert at the front of the array
+                }
             }}
         )
 
-        console.log("My result")
-        console.log(result)
-        if (result.modifiedCount == 1) 
+        if (result.modifiedCount == 1){
             console.log('Comment added successfully to blog post.');
+            return 0
+        }
+            
         if (result.modifiedCount > 1){
             console.log("More than one edited")
+            throw Error("This should not happen")
         }
         if (restult.modifiedCount < 1){
             console.log('No matching blog post found or comment was not added.');
+            return 1
         }
-        return result
+        throw Error("An error occured")
       } catch (error) {
         // Handle the error
       }

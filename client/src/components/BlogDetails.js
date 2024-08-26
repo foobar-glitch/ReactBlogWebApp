@@ -10,7 +10,8 @@ const BlogDetails = () =>{
     const { data, error, isPending } = useFetchGET(`${blogs_endpoint}/${id}`);
     const history = useNavigate();
     const [comment, setComment] = useState('');
-    const [deleteBlogRes, setDeleteBlogRes] = useState(null)
+    const [deleteBlogRes, setDeleteBlogRes] = useState(null);
+    const [commentFailure, setCommentFail] = useState(false);
 
     const handleBlogDeletion = () => {
         fetch(`${blogs_endpoint}/${id}`,{
@@ -22,8 +23,14 @@ const BlogDetails = () =>{
             }
             return res.json();
         }).then((data) =>{
-            setDeleteBlogRes(data)
             console.log(data)
+            if(data.status === 200){
+                history("/")
+            }
+            else{
+                setDeleteBlogRes(data.message)
+            }
+            
         })
     }
 
@@ -44,6 +51,12 @@ const BlogDetails = () =>{
             return res.json();
         })
         .then((data) => {
+            if(data.status === 200){
+                window.location.reload();
+            }
+            else{
+                setCommentFail(true)
+            }
             console.log(data); // Log the response data
         })
         .catch((error) => {
@@ -52,31 +65,26 @@ const BlogDetails = () =>{
         
     }
 
-    const test_comments = [
-        {"username": "user1", "comment": "hello"},
-        {"username": "user2", "comment": "whatsup"}
-    ]
-
     return (
         <div className="blog-details">
-            { deleteBlogRes && <div className='delete-response'>{deleteBlogRes.message}</div> }
+            { deleteBlogRes && <div className='delete-response'>{deleteBlogRes}</div> }
             { isPending && <div>Loading...</div>}
             { error && <div>{ error }</div> }
             { data && data.status === 200 && (
-                
-                <article>
+                <div className='blog-article'>
                     <h2>{ data.message.title }</h2>
                     <p class="meta-info">Created at { data.message.createdAt } <br />
-                    Written by { data.message.author }
+                    Written by <b><i>{ data.message.author }</i></b>
                     </p>
                     <div className="blog-body">{ data.message.body }</div>
                     <button onClick={handleBlogDeletion}>Delete</button>
-                </article>
+                </div>
             )}
             { data && data.status === 404 && (
                 <div>Entry not found</div>
             )}
             <form className="comment-section" onSubmit={handleCommentInsertion}>
+                {commentFailure && <div className='comment-failure'>Could not add a comment</div>}
                 <h3>Comments</h3>
                 <div className="comment-input-container">
                     <input 
@@ -89,6 +97,7 @@ const BlogDetails = () =>{
                     />
                     <button className="comment-submit">Submit</button>
                 </div>
+                
                 {data && data.status == 200 && <BlogEntryCommentsList comments={data.message.comments} title="All Comments"/>}
             </form>
         </div>

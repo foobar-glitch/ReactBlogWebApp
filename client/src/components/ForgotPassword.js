@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { forgot_password_enpoint } from './Universals'
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const ForgotPassword = () => {
     const [email, setEmail] = useState('');

@@ -43,7 +43,14 @@ def create_blog_entries(MONGO_HOST, MONGO_PORT, DB_NAME, COLLECTION, USER, USER_
         'body': admin_body,
         'author': admin_username,
         'id': 1,
-        'comments': [ { 'username': 'user', 'comment': 'Great Website.' }]
+        'comments': [
+           {
+           'commentId': 1,
+           'userId': 3, 
+           'username': 'user', 
+           'comment': 'Great Website' 
+           }
+        ]
     }
 
     # Data for the new blog entry
@@ -59,7 +66,14 @@ def create_blog_entries(MONGO_HOST, MONGO_PORT, DB_NAME, COLLECTION, USER, USER_
         'body': author_body,
         'author': auhor_username,
         'id': 2,
-        'comments': [ { 'username': 'user', 'comment': 'Nice Post' }]
+        'comments': [
+           {
+           'commentId': 1,
+           'userId': 3, 
+           'username': 'user', 
+           'comment': 'Nice Post' 
+           }
+        ]
     }
 
     result = collection.insert_one(admin_post)

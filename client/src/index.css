@@ -59,8 +59,8 @@
   margin-bottom: 10px;
 }
 
-.blog-details div{
-  margin: 20px 0 ;
+.blog-details .blog-article div{
+  margin: 10% 0;
 }
 
 .blog-details .meta-info {
@@ -92,7 +92,8 @@
 
 /* Style for the comment input field */
 .comment-input-container {
-  margin-top: 10px;
+  /*margin-top: 5%;*/
+  margin-bottom: 10%;
 }
 
 .comment-input {
@@ -118,12 +119,39 @@
   background-color: #2980b9;
 }
 
-/* Style for the comments */
+
 .comment {
-  margin-top: 20px;
-  color: #555;
+  border: 1px solid black;
+  border-radius: 5px !important  ;       
+  margin-bottom: 1%;      
+  background-color: #f9f9f9; 
 }
 
+.comment .username {
+    font-weight: bold;         
+    color: #333;       
+}
+.comment .creation {
+  font-size: xx-small;
+
+}
+
+.comment .entry {
+  font-size: 14px;
+  color: #555;
+  line-height: 1.5; 
+}
+
+
+.comment-failure{
+  color: red;
+}
+
+/*
+.comment .username{
+  margin-top: 10%;
+}
+*/
 /* create new blog form */
 .create {
   max-width: 400px;

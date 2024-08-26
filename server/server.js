@@ -49,7 +49,6 @@ app.get('/authenticate', async (req, res) => {
 })
 
 app.get('/blogs', (req, res) => {
-    //console.log(req.session.id)
     getBlogEntry().then(
         collection_entries => {
             res.json(collection_entries);
@@ -57,11 +56,22 @@ app.get('/blogs', (req, res) => {
     )
 });
 
+
 app.get('/blogs/:id', (req, res) => {
     getBlogEntry(req.params.id).then(
         collection_entries => {
             if(collection_entries){
-                res.json({status: 200, message: collection_entries});
+                // reduce collection entries to unsensitive data
+                comments = collection_entries.comments
+                const reduced_collection = {
+                    createdAt: collection_entries.createdAt,
+                    title: collection_entries.title,
+                    body: collection_entries.body,
+                    author: collection_entries.author,
+                    comments: collection_entries.comments.map(({ userId, ...rest }) => rest)
+                }
+
+                res.json({status: 200, message: reduced_collection});
             }else{
                 res.json({status: 404, message: null});
             }
@@ -78,16 +88,30 @@ app.post('/blogs/:id/comments', async (req, res) => {
     if(!profile_data){
         return res.json(authentication_failed_message);
     }
-    const result = await addCommentToBlogEntry(profile_data.username, req.body.comment, req.params.id);
+    const result = await addCommentToBlogEntry(profile_data.userId, profile_data.username, req.body.comment, req.params.id);
     // TODO: result check
-    res.json(
-        {status: 200, message: `User '${profile_data.username}' added a comment to blog`}
-    )
+    if(result === 0){
+        res.json(
+            {status: 200, message: `User '${profile_data.username}' added a comment to blog`}
+        )
+    }else{
+        res.json(
+            {status: 400, message: `Use '${profile_data.username}' could not add a comment`}
+        )
+    }
+    
 })
 
 app.post('/blogs', async (req, res) => {
     if(!req.session){
         return res.json(authentication_failed_message);
+    }
+    if(!req.body.title || !req.body.body){
+        return res.json({status: 401, message: "Invalid Data."})
+    }
+
+    if(req.body.title.length < 3 || req.body.body.length < 3){
+        return res.json({status:404, message: "Message too short."})
     }
 
     const profile_data = await SqlHandler.get_profile_info_from_session(req.session);
@@ -105,6 +129,7 @@ app.post('/blogs', async (req, res) => {
         status: 200, message: `User '${profile_data.username}' added a blog entry`
     })
 });
+
 
 app.delete('/blogs/:id', async (req, res) => {
     if(!req.session){
@@ -187,8 +212,6 @@ app.post('/register', async (req, res) => {
             message: "Created user successfully"
     })
     }
-
-    console.log(result);
 }) 
 
 
@@ -198,7 +221,12 @@ app.get('/get-profile-info', async (req, res) => {
     }
     const profile_data = await SqlHandler.get_profile_info_from_session(req.session);
     if(profile_data){
-        res.json({status:200, message: profile_data});
+        console.log(profile_data)
+        const secure_profile_data={
+            username: profile_data.username,
+            role: profile_data.role
+        }
+        res.json({status:200, message: secure_profile_data});
     }else{
         res.json(authentication_failed_message);
     }    
@@ -273,7 +301,6 @@ app.get('/forgot/reset', async (req, res) => {
 })
 
 app.post('/forgot/reset', async (req, res) => {
-    console.log(req.body)
     const token = req.body.token;
     const password = req.body.password
     const verifyPassword = req.body.verifyPassword

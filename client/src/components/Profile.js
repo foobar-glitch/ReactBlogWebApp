@@ -13,7 +13,6 @@ const Profile = () => {
             console.log(profile_data)
             return(
                 <div className="profile-details">
-                    <p>UserId: {profile_data.message.userId}</p>
                     <p>Username: {profile_data.message.username}</p>
                     <p>Role: {profile_data.message.role}</p>
                 </div>

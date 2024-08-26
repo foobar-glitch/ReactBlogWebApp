@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-import { authenticate_endpoint, blogs_endpoint } from "./Universals";
-import useFetchGET from "./useFetchGET";
+import { blogs_endpoint } from "./Universals";
+import { useNavigate } from 'react-router-dom';
 
 const Create = () => {
     const [title, setTitle] = useState('');
     const [body, setBody] = useState('');
     //const [author, setAuthor] = useState(null);
     const [isPending, setIsPending] = useState(false);
-    const [authencationMessage, setAuthencationMessage] = useState(null);
+    const [errorMessage, setErrorMessage] = useState(null);
+    const history = useNavigate();
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -26,16 +27,20 @@ const Create = () => {
             }
             return res.json();
         }).then((data) => {
-            console.log(data);
             setIsPending(false);
-            setAuthencationMessage(data) 
+            if(data.status === 200){
+                history("/")
+            }else{
+                setErrorMessage(data.message) 
+            }
+            
         })
     }
 
 
     return(
         <div className="create"> 
-        {authencationMessage &&<div className="authenticationMessage">{authencationMessage.message}</div>}
+        {errorMessage &&<div className="error-message">{errorMessage}</div>}
             <h2>Add a New Blog</h2>
             <form onSubmit={handleSubmit}>
                 <label>Blog Title:</label>
@@ -51,7 +56,7 @@ const Create = () => {
                     value={body}
                     onChange={(e) => setBody(e.target.value)}
                  />
-                 {!isPending && <button>Add Block</button>}
+                 {!isPending && <button>Add Blog</button>}
                  {isPending && <button disabled>Adding blog ...</button>}
             </form>
             

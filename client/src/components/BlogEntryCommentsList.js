@@ -4,8 +4,10 @@ const BlogEntryCommentsList = ({comments}) => {
         <div className="comment-list">
             {comments.map((comment) => (
                 <div className="comment">
-                    <div className='username'>{comment.username} </div>
-                    <div className='creation'>{comment.createdAt}</div>
+                    <div className='header'>
+                        <div className='username'>{comment.username} </div>
+                        <div className='creation'>{comment.createdAt}</div>
+                    </div>
                     <div className='entry'>{comment.comment}</div>
                 </div>
             ))}

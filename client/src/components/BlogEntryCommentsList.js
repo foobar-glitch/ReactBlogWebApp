@@ -4,6 +4,8 @@ import { useParams } from 'react-router-dom';
 const BlogEntryCommentsList = ({comments}) => {
     const { blogId } = useParams();
     const [error, setError] = useState(null)
+    const [enableEdit, setEnableEdit] = useState(false)
+    const [editText, setEditTextt] = useState('')
 
     const handleDeleteComment = (commendId) => {
         console.log(commendId)
@@ -30,7 +32,23 @@ const BlogEntryCommentsList = ({comments}) => {
     }
 
     const editComment = () => {
-        console.log("Now edit")
+        setEnableEdit(true)
+    }
+    const closeEdit = () => {
+        setEnableEdit(false)
+    }
+
+    const giveEdit = () => {
+        return (
+            <div className='edit-field'>
+                <textarea
+                    required
+                    value={editText}
+                    onChange={(e) => setEditTextt(e.target.value)}
+                />
+                <button className='disable-edit' onClick={closeEdit}>close edit</button>
+            </div>
+        )
     }
 
     return(
@@ -43,10 +61,10 @@ const BlogEntryCommentsList = ({comments}) => {
                             <div className='username'>{comment.username} </div>
                             <div className='creation'>{comment.createdAt}</div>
                         </div>
-                        <div className='entry' onClick={editComment}>{comment.comment}</div>
+                        {enableEdit && giveEdit()}
+                        {!enableEdit && <div className='entry' onClick={editComment}>{comment.comment}</div>}
                         <div className='modify'>
                             <span className='delete' onClick={() => handleDeleteComment(comment.commentId)}>DEL</span>
-                            <span className='edit' onClick={() => editComment()}>EDIT</span>
                         </div>
                     </div>
                     

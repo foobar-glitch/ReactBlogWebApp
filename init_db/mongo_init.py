@@ -3,7 +3,6 @@ from dotenv import load_dotenv
 from library.mongo import init_mongo_db, create_blog_entries
 
 def give_mongo_env():
-    load_dotenv("../.env")
     load_dotenv("/var/www/private/nodejs/rootdata/.env.mongo.internals")
     load_dotenv("/var/www/private/nodejs/userdata/.env.mongo.internals")
     MONGO_HOST = "127.0.0.1"

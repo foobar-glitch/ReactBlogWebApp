@@ -48,7 +48,8 @@ def create_blog_entries(MONGO_HOST, MONGO_PORT, DB_NAME, COLLECTION, USER, USER_
            'commentId': 1,
            'userId': 3, 
            'username': 'user', 
-           'comment': 'Great Website' 
+           'comment': 'Great Website',
+           'createdAt': current_time.strftime('%Y-%m-%dT%H:%M:%SZ')
            }
         ]
     }
@@ -71,7 +72,8 @@ def create_blog_entries(MONGO_HOST, MONGO_PORT, DB_NAME, COLLECTION, USER, USER_
            'commentId': 1,
            'userId': 3, 
            'username': 'user', 
-           'comment': 'Nice Post' 
+           'comment': 'Nice Post',
+           'createdAt': current_time.strftime('%Y-%m-%dT%H:%M:%SZ')
            }
         ]
     }

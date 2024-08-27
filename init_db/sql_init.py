@@ -3,7 +3,6 @@ import os
 from library.mariadb import init_db, create_users
 
 def give_mysql_env():
-    load_dotenv("../.env")
     load_dotenv("/var/www/private/nodejs/rootdata/.env.sql.internals")
     load_dotenv("/var/www/private/nodejs/userdata/.env.sql.internals")
 

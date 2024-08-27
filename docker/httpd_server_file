@@ -2,9 +2,9 @@ FROM httpd:2.4
 
 RUN mkdir -p /var/log/httpd/react/
 
-COPY client/build /usr/local/apache2/htdocs/
-RUN chmod -R 755 /usr/local/apache2/htdocs/ && chown -R www-data:www-data /usr/local/apache2/htdocs/
 COPY docker/apache_config/httpd.conf /usr/local/apache2/conf/httpd.conf
 COPY docker/apache_config/certs/ /usr/local/apache2/conf/
 COPY docker/apache_config/httpd-vhosts.conf /usr/local/apache2/conf/extra/httpd-vhosts.conf
+COPY client/build /usr/local/apache2/htdocs/
+RUN chmod -R 755 /usr/local/apache2/htdocs/ && chown -R www-data:www-data /usr/local/apache2/htdocs/
 

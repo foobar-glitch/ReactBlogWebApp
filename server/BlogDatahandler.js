@@ -125,10 +125,73 @@ async function removeBlogEntry(id_val){
 
 }
 
+async function findCommentByCommentIdInBlog(blogId, commentId){
+    try{
+        await client.connect()
+        const database = client.db(MongoSecrets.DB_NAME);
+        const collection = database.collection(MongoCollections.BLOG_ENTRIES);
+        const comments = await collection.aggregate([
+            {
+                $match: { id: +blogId } // Match the blog document with the given blogId
+            },
+            {
+                $project: { // Project only the necessary fields
+                    _id: 0, // Exclude the _id field
+                    comments: {
+                        $filter: { // Filter the comments array
+                            input: '$comments',
+                            as: 'comment',
+                            cond: { $eq: ['$$comment.commentId', +commentId] }
+                        }
+                    }
+                }
+            }
+        ]).toArray();
+        if(comments.length !== 1){
+            throw Error("There should only be one comment with that id in that blog")
+        }
+        //if(comments[0].length !== 1){
+        //    throw Error("There should only be one comment with that id in that blog 2")
+        //}
+        console.log(comments[0].comments[0])
+        return comments[0].comments[0]
+    }finally{
+        await client.close()
+    }
+}
+
+async function deleteCommentOfBlogByCommentId(blogId, commentId){
+    try{
+        await client.connect()
+        const database = client.db(MongoSecrets.DB_NAME);
+        const collection = database.collection(MongoCollections.BLOG_ENTRIES);
+        const result = await collection.updateOne(
+            { id: +blogId }, // Filter to match the document with the given blogId
+            { $pull: { comments: { commentId: +commentId } } } // Pull (remove) the comment with the specified commentId
+        );
+
+        // Check the result and return a status
+        if (result.modifiedCount > 0) {
+            console.log(`Comment with commentId ${commentId} deleted from blog with id ${blogId}`);
+            return { status: 200, message: 'Comment deleted successfully' };
+        } else {
+            console.log(`No matching comment found to delete.`);
+            return { status: 404, message: 'Comment not found' };
+        }
+    } catch (error) {
+        console.error('Error deleting comment:', error);
+        throw error; // Re-throw error if needed
+    }finally{
+        await client.close()
+    }
+}
+
 
 module.exports = {
     getBlogEntry,
     createBlogEntry,
     addCommentToBlogEntry,
-    removeBlogEntry
+    removeBlogEntry,
+    findCommentByCommentIdInBlog,
+    deleteCommentOfBlogByCommentId
 }

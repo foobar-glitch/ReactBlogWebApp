@@ -2,7 +2,7 @@
 var session = require('express-session')
 const express = require('express');
 const cors = require('cors');
-const { getBlogEntry, createBlogEntry, addCommentToBlogEntry, removeBlogEntry } = require('./BlogDatahandler');
+const { getBlogEntry, createBlogEntry, addCommentToBlogEntry, removeBlogEntry, findCommentByCommentIdInBlog, deleteCommentOfBlogByCommentId } = require('./BlogDatahandler');
 const { SqlHandler } = require('./Authenticator');
 const cryptoRandomString = require('crypto-random-string');
 const { isEmailValid } = require('./EmailValidator');
@@ -338,6 +338,46 @@ app.post('/forgot/reset', async (req, res) => {
             message: "Could not reset user",
         })
     }
+})
+
+
+app.delete('/blogs/:blogId/comments/:commentId', async (req, res) => {    
+    if(!req.session){
+        return res.json(authentication_failed_message);
+    }
+    const profile_data = await SqlHandler.get_profile_info_from_session(req.session);
+    if(!profile_data){
+        return res.json(authentication_failed_message)
+    }
+
+    const blogId = req.params.blogId;
+    const commentId = req.params.commentId;
+
+    
+
+    const comments = await findCommentByCommentIdInBlog(blogId, commentId)
+
+    const profile_user = profile_data.username
+    const profile_userId = profile_data.userId
+    const profile_role = profile_data.role
+
+    const comment_user = comments.username
+    const comment_userId = comments.userId
+    if(profile_role === "admin"){
+        //delete comment
+        return res.json(await deleteCommentOfBlogByCommentId(blogId, commentId))
+    }else{
+        if(comment_userId !== profile_userId){
+            return res.json({status: 400, message: 'Need to be the creator to delete comments'})
+        }
+        if(comment_user !== profile_user){
+            // If userId match but the username between mariadb and mongodb dont match there is a data inconsistency
+            console.log("Data Inconsistency")
+            return res.json({stats: 500, message: 'Internal Server Error'})
+        }
+        return res.json(await deleteCommentOfBlogByCommentId(blogId, commentId))
+    }
+    
 })
 
 

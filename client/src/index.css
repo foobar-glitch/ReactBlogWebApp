@@ -59,7 +59,7 @@
   margin-bottom: 10px;
 }
 
-.blog-details .blog-article div{
+.blog-details .blog-article .blog-body{
   margin: 10% 0;
 }
 
@@ -124,10 +124,15 @@
 }
 
 
+.comment-body {
+  margin-bottom: 2%;
+  background-color: white; 
+  margin-bottom: 6%;
+}
+
 .comment {
   border: 1px dotted black;
   border-radius: 5px;       
-  margin-bottom: 2%;
   background-color: white; 
 }
 
@@ -137,7 +142,6 @@
 }
 .comment .creation {
   font-size: xx-small;
-
 }
 
 .comment .entry {
@@ -146,14 +150,28 @@
   line-height: 1.5; 
 }
 
+.modify .delete{
+  float: inline-end; 
+  font-size: xx-small;
+  color: blue;
+  cursor: pointer; 
+}
+
+.modify .edit{
+  float: inline-start;
+  font-size: xx-small;
+  color: blue;
+  cursor: pointer; 
+}
 
 .comment-failure{
   color: red;
 }
 
-.comment .header{
+.comment-body .header{
   border-bottom: 2px solid #000;
 }
+
 
 /*
 .comment .username{

@@ -89,9 +89,13 @@ const ResetByToken = () => {
     const { data: tokenResponse, isPending, error } = useFetchGET(`${reset_by_token_endpoint}?token=${token}`);
     return(
         <div>
-            {!isPending && !resetSuccessfull && tokenResponse && tokenResponse.status===202 && give_welcome(tokenResponse.username)}
-            {!isPending && !resetSuccessfull && tokenResponse && tokenResponse.status===202 && new_password(token)}
-            {resetSuccessfull && <div className='password-reset'>Password reset was successfull</div>}
+            {!isPending && !resetSuccessfull && tokenResponse && tokenResponse.status===400 && 
+            <div className='invalid-token'>This token is not valid</div>
+            }
+            {!isPending && !resetSuccessfull && tokenResponse && tokenResponse.status===202 && 
+            [give_welcome(tokenResponse.username), new_password(token)]
+            }
+            {!isPending && resetSuccessfull && <div className='password-reset'>Password reset was successfull</div>}
         </div>
     );
 }

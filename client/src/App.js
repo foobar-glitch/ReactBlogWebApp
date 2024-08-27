@@ -19,7 +19,7 @@ function App() {
         React.createElement(Routes, null,
           React.createElement(Route, { path: "/", element: React.createElement(Home) }),
           React.createElement(Route, { path: "/create", element: React.createElement(Create) }),
-          React.createElement(Route, { path: `/blogs/:id`, element: React.createElement(BlogDetails) }),
+          React.createElement(Route, { path: `/blogs/:blogId`, element: React.createElement(BlogDetails) }),
           React.createElement(Route, { path: "/login", element: React.createElement(Login) }),
           React.createElement(Route, { path: "/register", element: React.createElement(Register) }),
           React.createElement(Route, { path: "/forgot", element: React.createElement(ForgotPassword) }),

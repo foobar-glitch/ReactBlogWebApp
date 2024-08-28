@@ -8,7 +8,6 @@ def give_mysql_env():
 
     SQL_HOST = "127.0.0.1"
     SQL_PORT = 3306#int(os.getenv('MARIADB_PORT'))
-    print(os.getenv('MARIADB_ROOT_PASSWORD'))
     ROOT_USER_PASSWORD = os.getenv('MARIADB_ROOT_PASSWORD')
 
     USER_NAME = os.getenv('MARIADB_USER')

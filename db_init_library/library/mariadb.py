@@ -1,6 +1,6 @@
 import mariadb
 
-def init_db(SQL_HOST, SQL_PORT, ROOT_USER_PASSWORD, USER_NAME, USER_PASSWORD, DB_NAME, USERS_TABLE, COOKIE_TABLE, RESET_TABLE):
+def init_db(SQL_HOST, SQL_PORT, ROOT_USER_PASSWORD, USER_NAME, USER_PASSWORD, DB_NAME, USERS_TABLE, COOKIE_TABLE, RESET_TABLE, REGISTER_TABLE):
     try:
         root_connection = mariadb.connect(
             host=SQL_HOST,
@@ -56,7 +56,7 @@ def init_db(SQL_HOST, SQL_PORT, ROOT_USER_PASSWORD, USER_NAME, USER_PASSWORD, DB
         created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         expired_at DATETIME NOT NULL,
         PRIMARY KEY (cookieId),
-        FOREIGN KEY (userId) REFERENCES users(userId)
+        FOREIGN KEY (userId) REFERENCES {USERS_TABLE}(userId)
             ON DELETE CASCADE
             ON UPDATE CASCADE
     );
@@ -70,14 +70,46 @@ def init_db(SQL_HOST, SQL_PORT, ROOT_USER_PASSWORD, USER_NAME, USER_PASSWORD, DB
         created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         expired_at DATETIME NOT NULL,
         PRIMARY KEY (resetId),
-        FOREIGN KEY (userId) REFERENCES users(userId)
+        FOREIGN KEY (userId) REFERENCES {USERS_TABLE}(userId)
             ON DELETE CASCADE
             ON UPDATE CASCADE
     );
     """
+
+    create_temp_user_table = f"""
+    CREATE TABLE IF NOT EXISTS temp_users (
+        tempUserId INT(11) NOT NULL AUTO_INCREMENT,
+        username VARCHAR(255) NOT NULL UNIQUE,
+        email VARCHAR(255) NOT NULL UNIQUE,
+        password VARCHAR(255) NOT NULL,
+        salt VARCHAR(255) NOT NULL,
+        role VARCHAR(255) NOT NULL,
+        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        PRIMARY KEY (tempUserId)
+    );
+    """
+
+    create_register_table=f"""
+    CREATE TABLE IF NOT EXISTS {REGISTER_TABLE} (
+        registerId INT(11) NOT NULL AUTO_INCREMENT,
+        tempUserId INT(11) NOT NULL,
+        registerToken VARCHAR(255) NOT NULL UNIQUE,
+        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        expired_at DATETIME NOT NULL,
+        PRIMARY KEY (registerId),
+        FOREIGN KEY (tempUserId) REFERENCES temp_users(tempUserId)
+            ON DELETE CASCADE
+            ON UPDATE CASCADE
+    );
+    """
+
     cursor.execute(create_user_table)
     cursor.execute(create_cookie_table)
     cursor.execute(create_reset_table)
+    cursor.execute(create_temp_user_table)
+    cursor.execute(create_register_table)
+
 
     user_connection.commit()
     user_connection.close()

@@ -74,7 +74,7 @@ const Register = () => {
     return (
         <div className="register">
             {(!serverResponse || serverResponse.status !== 200) && give_form()}
-            {serverResponse && serverResponse.status === 200 && <div className="success-message">{serverResponse.message}</div>}
+            {serverResponse && serverResponse.status === 200 && <div className="success-message">Please verify the email you have received.</div>}
         </div>
     )
 }

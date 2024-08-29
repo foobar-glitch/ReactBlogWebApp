@@ -42,7 +42,7 @@ class SqlHandler{
             // After login insert the session cookie into the cookie table
             await performQuery(
                 db_connection,
-                `INSERT ${SQLTableNames.COOKIE} (userId, cookieData, created_at, expired_at) VALUES (?, ?, ?, ?)`,
+                `INSERT ${SQLTableNames.COOKIE} (userId, cookieData, created_at, expired_at) VALUES (?, SHA2(?, 256), ?, ?)`,
                 [rows[0].userId, session.id, currentTime, session.cookie._expires]
             );
             return 1;
@@ -115,7 +115,7 @@ class SqlHandler{
 
             const cookie_table_data = await performQuery(
             db_connection,
-            `SELECT * FROM ${SQLTableNames.COOKIE} WHERE cookieData = ?`,
+            `SELECT * FROM ${SQLTableNames.COOKIE} WHERE cookieData = SHA2(?, 256)`,
             [session.id]
             );
 
@@ -206,7 +206,7 @@ class SqlHandler{
 
             await performQuery(
                 db_connection,
-                `DELETE FROM ${SQLTableNames.COOKIE} WHERE cookieData = ?`,
+                `DELETE FROM ${SQLTableNames.COOKIE} WHERE cookieData = SHA2(?, 256)`,
                 [session.id]
             );
 

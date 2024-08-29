@@ -2,7 +2,7 @@ services:
   frontendserver:
     build:
       context: .  
-      dockerfile: docker/httpd_server_file
+      dockerfile: docker/httpd_frontend
     image: apache-server  # Use your specified image
     container_name: frontend-running  # Set the container name
     ports:
@@ -16,7 +16,7 @@ services:
   backendserver:
     build:
       context: .
-      dockerfile: docker/node_backend_server_file
+      dockerfile: docker/nodejs_backend
     image: nodejs-server
     env_file:
       - /var/www/private/nodejs/userdata/.env.mongo.internals

@@ -11,6 +11,8 @@ services:
   mariadbserver:
     image: mariadb:11.5.2
     container_name: mariadb-server
+    environment:
+      - MARIADB_ROOT_PASSWORD=root
     ports:
       - "3306:3306"
     networks:

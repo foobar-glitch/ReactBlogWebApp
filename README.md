@@ -208,11 +208,11 @@ docker build -f docker/httpd_server_file -t httpd_server .
 ```
 At last just excute the docker-compose file
 ```bash
-docker-compose up
+docker-compose -f docker-compose.yml up --build
 ```
 Once the services are running just run the script to initialize the databases
 ```
 ./init_db.sh
 ```
 You could mount MariaDB and MongoDB to a persistent storage otherwise it will be ephermal/volantile storage that 
-is deleted once 
+is deleted once the container is deleted

@@ -22,7 +22,7 @@ yarn-error.log*
 .gitignore
 #docker/
 #sql/
-docker/mariadb_start.sh
+mariadb_start.sh
 client/src/components/Universals.js
 *pycache*
 .env*

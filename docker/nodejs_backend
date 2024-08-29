@@ -9,7 +9,7 @@ COPY server/package*.json ./
 RUN npm install --only=production
 
 # Copy the rest
-COPY server/. .
+COPY webapp/server/. .
 RUN npm install --only=production
 
 

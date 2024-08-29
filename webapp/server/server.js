@@ -4,8 +4,13 @@ const express = require('express');
 const cors = require('cors');
 const { getBlogEntry, createBlogEntry, addCommentToBlogEntry, removeBlogEntry, findCommentByCommentIdInBlog, deleteCommentOfBlogByCommentId } = require('./BlogDatahandler');
 const { SqlHandler } = require('./Authenticator');
-const cryptoRandomString = require('crypto-random-string');
 const { isEmailValid } = require('./EmailValidator');
+const crypto = require('crypto');
+
+function generateRandomString(length) {
+    return crypto.randomBytes(length).toString('hex').slice(0, length);
+}
+
 
 const app = express();
 app.set('trust proxy', 1)
@@ -15,7 +20,8 @@ const authentication_failed_message = {
     message: "Authentication failed"
 }
 
-const crypto_secret = cryptoRandomString(32)
+const crypto_secret = generateRandomString(32)
+
 console.log(crypto_secret)
 app.use(session({
 	secret: crypto_secret,

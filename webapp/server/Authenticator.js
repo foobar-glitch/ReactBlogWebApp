@@ -182,14 +182,15 @@ class SqlHandler{
             return 101
         }
         const currentTime = new Date();
+
         if(register_table[0].expired_at < currentTime){
             // Delete resetToken from table
             console.log("Expired time")
             await performQuery(
                 db_connection,
-                `DELETE FROM ${SQLTableNames.RESET} WHERE resetId=${reset_entry[0].resetId}`
+                `DELETE FROM ${SQLTableNames.REGISTER} WHERE registerId=${register_table[0].registerId}`
             )
-            return -1
+            return -1;
         }
 
         const temp_user_id = register_table[0].tempUserId

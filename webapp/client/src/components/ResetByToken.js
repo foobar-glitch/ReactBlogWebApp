@@ -88,7 +88,7 @@ const ResetByToken = () => {
     const token = getQueryParams()['token'];
     const { data: tokenResponse, isPending, error } = useFetchGET(`${reset_by_token_endpoint}?token=${token}`);
     return(
-        <div>
+        <div className='reset-by-token'>
             {!isPending && !resetSuccessfull && tokenResponse && tokenResponse.status===400 && 
             <div className='invalid-token'>This token is not valid</div>
             }

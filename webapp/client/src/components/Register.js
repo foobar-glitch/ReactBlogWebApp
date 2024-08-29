@@ -35,8 +35,8 @@ const Register = () => {
         
     }
 
-    return (
-        <div className="register">
+    const give_form = () =>{
+        return (
             <form onSubmit={handleRegister}>
                 <label>Usename: </label>
                 <input type="text" 
@@ -66,9 +66,15 @@ const Register = () => {
                     required>
                 </input>
                 {serverResponse && serverResponse.status !== 200 && <div className="error-message">{serverResponse.message}</div>}
-                {serverResponse && serverResponse.status === 200 && <div className="success-message">{serverResponse.message}</div>}
                 <button type="submit">Sign Up</button>
             </form>
+        )
+    }
+
+    return (
+        <div className="register">
+            {(!serverResponse || serverResponse.status !== 200) && give_form()}
+            {serverResponse && serverResponse.status === 200 && <div className="success-message">{serverResponse.message}</div>}
         </div>
     )
 }

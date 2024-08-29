@@ -22,8 +22,8 @@ const RegisterByToken = () => {
     const token = getQueryParams()['token'];
     const { data, isPending, error } = useFetchGET(`${register_by_token_endpoint}?token=${token}`);
     return(
-        <div>
-            This is the reset page
+        <div className='register-by-token'>
+            Checking registration token:<br />
             {data && <div>{data.message}</div>}
         </div>
     );

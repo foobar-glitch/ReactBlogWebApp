@@ -39,8 +39,8 @@ def init_db(SQL_HOST, SQL_PORT, ROOT_USER_PASSWORD, USER_NAME, USER_PASSWORD, DB
         userId INT(11) NOT NULL AUTO_INCREMENT,
         username VARCHAR(255) NOT NULL UNIQUE,
         email VARCHAR(255) NOT NULL UNIQUE,
-        password VARCHAR(255) NOT NULL,
-        salt VARCHAR(255) NOT NULL,
+        password VARBINARY(255) NOT NULL,
+        salt VARBINARY(255) NOT NULL,
         role VARCHAR(255) NOT NULL,
         created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -52,7 +52,7 @@ def init_db(SQL_HOST, SQL_PORT, ROOT_USER_PASSWORD, USER_NAME, USER_PASSWORD, DB
     CREATE TABLE IF NOT EXISTS {COOKIE_TABLE} (
         cookieId INT(11) NOT NULL AUTO_INCREMENT,
         userId INT(11) NOT NULL,
-        cookieData VARCHAR(255) NOT NULL UNIQUE,
+        cookieData VARBINARY(255) NOT NULL UNIQUE,
         created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         expired_at DATETIME NOT NULL,
         PRIMARY KEY (cookieId),
@@ -66,7 +66,7 @@ def init_db(SQL_HOST, SQL_PORT, ROOT_USER_PASSWORD, USER_NAME, USER_PASSWORD, DB
     CREATE TABLE IF NOT EXISTS {RESET_TABLE} (
         resetId INT(11) NOT NULL AUTO_INCREMENT,
         userId INT(11) NOT NULL,
-        resetToken VARCHAR(255) NOT NULL UNIQUE,
+        resetToken VARBINARY(255) NOT NULL UNIQUE,
         created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         expired_at DATETIME NOT NULL,
         PRIMARY KEY (resetId),
@@ -81,8 +81,8 @@ def init_db(SQL_HOST, SQL_PORT, ROOT_USER_PASSWORD, USER_NAME, USER_PASSWORD, DB
         tempUserId INT(11) NOT NULL AUTO_INCREMENT,
         username VARCHAR(255) NOT NULL UNIQUE,
         email VARCHAR(255) NOT NULL UNIQUE,
-        password VARCHAR(255) NOT NULL,
-        salt VARCHAR(255) NOT NULL,
+        password VARBINARY(255) NOT NULL,
+        salt VARBINARY(255) NOT NULL,
         role VARCHAR(255) NOT NULL,
         created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -94,7 +94,7 @@ def init_db(SQL_HOST, SQL_PORT, ROOT_USER_PASSWORD, USER_NAME, USER_PASSWORD, DB
     CREATE TABLE IF NOT EXISTS {REGISTER_TABLE} (
         registerId INT(11) NOT NULL AUTO_INCREMENT,
         tempUserId INT(11) NOT NULL,
-        registerToken VARCHAR(255) NOT NULL UNIQUE,
+        registerToken VARBINARY(255) NOT NULL UNIQUE,
         created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         expired_at DATETIME NOT NULL,
         PRIMARY KEY (registerId),
@@ -128,17 +128,17 @@ def create_users(SQL_HOST, SQL_PORT, USER_NAME, USER_PASSWORD, DB_NAME, USERS_TA
     cursor = user_connection.cursor()
     create_admin = f"""
         INSERT INTO {USERS_TABLE} (userID, username, email, password, salt, role, created_at, updated_at) 
-        VALUES (1, 'admin', 'admin@mail.com', SHA2(CONCAT('admin','eabb53460fa953b6'), 256), 'eabb53460fa953b6', 'admin', NOW(), NOW());
+        VALUES (1, 'admin', 'admin@mail.com', SHA2(CONCAT('admin',UNHEX('eabb53460fa953b6')), 256), 'eabb53460fa953b6', 'admin', NOW(), NOW());
     """
 
     create_author = f"""
         INSERT INTO {USERS_TABLE} (userID, username, email, password, salt, role, created_at, updated_at) 
-        VALUES (2, 'author', 'author@mail.com', SHA2(CONCAT('author','6f7f4b9659cbfbe6'), 256), '6f7f4b9659cbfbe6', 'author', NOW(), NOW());
+        VALUES (2, 'author', 'author@mail.com', SHA2(CONCAT('author',UNHEX('6f7f4b9659cbfbe6')), 256), '6f7f4b9659cbfbe6', 'author', NOW(), NOW());
     """
 
     create_user = f"""
         INSERT INTO {USERS_TABLE} (userID, username, email, password, salt, role, created_at, updated_at) 
-        VALUES  (3, 'user', 'user@mail.com', SHA2(CONCAT('user','391feef6e93e0b29'), 256), '391feef6e93e0b29', 'user', NOW(), NOW());
+        VALUES  (3, 'user', 'user@mail.com', SHA2(CONCAT('user',UNHEX('391feef6e93e0b29')), 256), '391feef6e93e0b29', 'user', NOW(), NOW());
     """
 
     cursor.execute(create_admin)

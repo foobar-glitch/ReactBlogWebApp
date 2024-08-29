@@ -1,6 +1,11 @@
 const { connectToDatabase, closeDatabaseConnection, performQuery } = require('./DatabaseConnector');
 const crypto = require('crypto');
 const { SQLTableNames } = require('./DBConfigs');
+const salt_legth = 8;
+const token_length = 16;
+// 24h
+const token_expire_time = 24 * 60 * 60 * 1000;
+
 
 class SqlHandler{
 
@@ -26,8 +31,8 @@ class SqlHandler{
             // Perform the database query
             const rows = await performQuery(
                 db_connection,
-                `SELECT * FROM ${SQLTableNames.USERS} WHERE username = ? AND password = SHA2(?, 256)`,
-                [username, password.concat(sql_salt)]
+                `SELECT * FROM ${SQLTableNames.USERS} WHERE username = ? AND password = SHA2(CONCAT(?, UNHEX(?)), 256)`,
+                [username, password, sql_salt]
             );
             if (rows.length !== 1) {
                 return 0;
@@ -108,11 +113,11 @@ class SqlHandler{
         }
         
 
-        const salt = crypto.randomBytes(8).toString('hex').slice(0, 16);
+        const salt = crypto.randomBytes(salt_legth).toString('hex').slice(0, 16);
         const create_table = await performQuery(
             db_connection,
-            `INSERT INTO temp_users (username, password, email, salt, role, created_at, updated_at) values (?, SHA2(?, 256),? , ?, ?, NOW(), NOW());`,
-            [username, password.concat(salt), email, salt, user_role]
+            `INSERT INTO temp_users (username, password, email, salt, role, created_at, updated_at) values (?, SHA2(CONCAT(?, UNHEX(?)), 256), ? , ?, ?, NOW(), NOW());`,
+            [username, password, salt, email, salt, user_role]
         )
 
         const temp_user = await performQuery(
@@ -128,9 +133,9 @@ class SqlHandler{
         
 
         const currentTime = new Date();
-        const nextDayTime = new Date(currentTime.getTime() + 24 * 60 * 60 * 1000);
+        const nextDayTime = new Date(currentTime.getTime() + token_expire_time);
 
-        const register_token = crypto.randomBytes(16).toString('hex');
+        const register_token = crypto.randomBytes(token_length).toString('hex');
         const register_table = await performQuery(
             db_connection,
             `INSERT INTO ${SQLTableNames.REGISTER} (tempUserId, registerToken, created_at, expired_at) values (?, SHA2(?, 256), ?, ?);`,
@@ -175,6 +180,16 @@ class SqlHandler{
             // This should not happen
             console.log("Register Token has multiple entries")
             return 101
+        }
+        const currentTime = new Date();
+        if(register_table[0].expired_at < currentTime){
+            // Delete resetToken from table
+            console.log("Expired time")
+            await performQuery(
+                db_connection,
+                `DELETE FROM ${SQLTableNames.RESET} WHERE resetId=${reset_entry[0].resetId}`
+            )
+            return -1
         }
 
         const temp_user_id = register_table[0].tempUserId
@@ -353,10 +368,10 @@ class SqlHandler{
 
 
             const currentTime = new Date();
-            const nextDayTime = new Date(currentTime.getTime() + 24 * 60 * 60 * 1000);
+            const nextDayTime = new Date(currentTime.getTime() + token_expire_time);
 
             // Create random reset token
-            const reset_token = crypto.randomBytes(16).toString('hex');
+            const reset_token = crypto.randomBytes(token_length).toString('hex');
 
             // Create a reset entry
             const reset_entry = await performQuery(
@@ -431,12 +446,12 @@ class SqlHandler{
                 [userId]
             )
             
-            const salt = crypto.randomBytes(8).toString('hex').slice(0, 16);
+            const salt = crypto.randomBytes(salt_legth).toString('hex').slice(0, 16);
 
             const create_table = await performQuery(
                 db_connection,
-                `UPDATE ${SQLTableNames.USERS} SET password = SHA2(?, 256), salt = ? WHERE userId = ?;`,
-                [newpassword.concat(salt), salt, userId]
+                `UPDATE ${SQLTableNames.USERS} SET password = SHA2(CONCAT(?, UNHEX(?)), 256), salt = ? WHERE userId = ?;`,
+                [newpassword, salt, salt, userId]
             )
 
             if(create_table.affectedRows < 1){

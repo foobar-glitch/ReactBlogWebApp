@@ -11,7 +11,8 @@ const SQLSecrets = {
 const SQLTableNames = {
     USERS: process.env.MARIADB_USER_TABLE,
     COOKIE: process.env.MARIADB_COOKIE_TABLE,
-    RESET: process.env.MARIADB_RESET_TABLE
+    RESET: process.env.MARIADB_RESET_TABLE,
+    REGISTER: process.env.MARIADB_REGISTER_TABLE
 };
 
 const MongoSecrets = {

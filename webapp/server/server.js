@@ -306,6 +306,26 @@ app.get('/forgot/reset', async (req, res) => {
     
 })
 
+app.get('/register/validate', async (req, res) => {
+    const token = req.query.token;
+    const register_token_successfull = await SqlHandler.checkRegisterToken(token)
+
+    if(register_token_successfull === 0){
+        console.log("Registered the user")
+        return res.json({
+            status: 200,
+            message: "Register successfull"
+        })
+    }
+    //console.log(register_token_successfull)
+    return res.json({
+        status: 400,
+        message: "Error occured"
+    })
+    
+})
+
+
 app.post('/forgot/reset', async (req, res) => {
     const token = req.body.token;
     const password = req.body.password

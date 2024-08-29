@@ -8,6 +8,7 @@ const profile_data_endpoint = api_endpoint + '/get-profile-info';
 const register_endpoint = api_endpoint + '/register'
 const forgot_password_enpoint = api_endpoint + '/forgot'
 const reset_by_token_endpoint = api_endpoint + '/forgot/reset'
+const register_by_token_endpoint = api_endpoint + '/register/validate'
 
 
-export {blogs_endpoint, login_endpoint, logout_endpoint, register_endpoint, authenticate_endpoint, profile_data_endpoint, forgot_password_enpoint, reset_by_token_endpoint};
+export {blogs_endpoint, login_endpoint, logout_endpoint, register_endpoint, authenticate_endpoint, profile_data_endpoint, forgot_password_enpoint, reset_by_token_endpoint, register_by_token_endpoint};

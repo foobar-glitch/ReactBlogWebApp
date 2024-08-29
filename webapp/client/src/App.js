@@ -10,6 +10,7 @@ import Profile from './components/Profile';
 import Register from './components/Register';
 import ForgotPassword from './components/ForgotPassword';
 import ResetByToken from './components/ResetByToken'
+import RegisterByToken from './components/RegisterByToken';
 
 function App() {
   return React.createElement(BrowserRouter, null,
@@ -22,6 +23,7 @@ function App() {
           React.createElement(Route, { path: `/blogs/:blogId`, element: React.createElement(BlogDetails) }),
           React.createElement(Route, { path: "/login", element: React.createElement(Login) }),
           React.createElement(Route, { path: "/register", element: React.createElement(Register) }),
+          React.createElement(Route, { path: "/register/validate", element: React.createElement(RegisterByToken) }),
           React.createElement(Route, { path: "/forgot", element: React.createElement(ForgotPassword) }),
           React.createElement(Route, { path: "/forgot/reset", element: React.createElement(ResetByToken) }),
           React.createElement(Route, { path: "/profile", element: React.createElement(Profile) }),

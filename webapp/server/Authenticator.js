@@ -55,8 +55,8 @@ class SqlHandler{
         let db_connection
         try{
 
-            db_connection = await connectToDatabase();
-            const user_role = 'user'
+        db_connection = await connectToDatabase();
+        const user_role = 'user'
         
 
         // check if username already taken
@@ -82,16 +82,65 @@ class SqlHandler{
             return 200;
         }
 
+        // delete from temp users
+        const temp_user_username = await performQuery(
+            db_connection,
+            `SELECT * FROM temp_users WHERE username = ?` ,
+            [username]
+        )
+
+
+        if(temp_user_username.length !== 0){
+            console.log("Already registered username "+ username)
+            await performQuery(db_connection, "DELETE FROM temp_users WHERE username = ?", [username])
+            //return 1010;
+        }
+
+        const temp_email= await performQuery(
+            db_connection,
+            `SELECT * FROM temp_users WHERE email = ?` ,
+            [email]
+        )
+
+        if(temp_email.length !== 0){
+            console.log("Already registering email")
+            return 1020;
+        }
+        
+
         const salt = crypto.randomBytes(8).toString('hex').slice(0, 16);
         const create_table = await performQuery(
             db_connection,
-            `INSERT INTO ${SQLTableNames.USERS} (username, password, email, salt, role, created_at, updated_at)` 
-            +`values (?, SHA2(?, 256),? , ?, ?, NOW(), NOW());`,
+            `INSERT INTO temp_users (username, password, email, salt, role, created_at, updated_at) values (?, SHA2(?, 256),? , ?, ?, NOW(), NOW());`,
             [username, password.concat(salt), email, salt, user_role]
         )
+
+        const temp_user = await performQuery(
+            db_connection,
+            `SELECT * from temp_users WHERE username=?`,
+            [username]
+        )
+        if(temp_user.length >= 1){
+            // could do check time>10min otherwise send new link
+            console.log("Temp user already exists")
+            //return 10;
+        }
         
+
+        const currentTime = new Date();
+        const nextDayTime = new Date(currentTime.getTime() + 24 * 60 * 60 * 1000);
+
+        const register_token = crypto.randomBytes(16).toString('hex');
+        const register_table = await performQuery(
+            db_connection,
+            `INSERT INTO ${SQLTableNames.REGISTER} (tempUserId, registerToken, created_at, expired_at) values (?, SHA2(?, 256), ?, ?);`,
+            [temp_user[0].tempUserId, register_token, currentTime, nextDayTime]
+        )
+        console.log(`Created register token ${register_token}`)
+        console.log(`Go to /register/validate?token=${register_token}`)
+
         if(create_table.affectedRows == 1){
-            console.log("Creating user succeded");
+            console.log("Creating temp user succeded");
             return 0;
         }
         if(create_table.affectedRows < 1){
@@ -102,6 +151,61 @@ class SqlHandler{
             throw Error("Server error more than one entry changed!!");
         }
             return 2;
+        }finally{
+            await closeDatabaseConnection(db_connection);
+        }
+    }
+
+    static async checkRegisterToken(registerToken){
+
+        let db_connection
+        try{
+
+        db_connection = await connectToDatabase();
+        const register_table = await performQuery(
+            db_connection,
+            `SELECT * FROM ${SQLTableNames.REGISTER} WHERE registerToken = SHA2(?, 256)`,
+            [registerToken]
+        )
+        if(register_table.length === 0){
+            console.log("Register token does not exist")
+            return 100
+        }
+        if(register_table > 1){
+            // This should not happen
+            console.log("Register Token has multiple entries")
+            return 101
+        }
+
+        const temp_user_id = register_table[0].tempUserId
+        const temp_user_table = await performQuery(
+            db_connection,
+            `SELECT * FROM temp_users WHERE tempUserId=?`,
+            [temp_user_id]
+        )
+
+        if(temp_user_table.length !== 1){
+            console.log("TempUserId not unique")
+            return 100
+        }
+
+        const create_table = await performQuery(
+            db_connection,
+            `INSERT INTO ${SQLTableNames.USERS} (username, password, email, salt, role, created_at, updated_at) values (?, ?, ?, ?, ?, NOW(), NOW());`,
+            [temp_user_table[0].username, temp_user_table[0].password, temp_user_table[0].email, temp_user_table[0].salt, temp_user_table[0].role]
+        )
+
+        if(create_table.affectedRows !== 1){
+            return 100;
+        }
+
+
+        await performQuery(
+            db_connection,
+            `DELETE FROM temp_users WHERE tempUserId=?`,
+            [temp_user_id]
+        )
+        return 0;
         }finally{
             await closeDatabaseConnection(db_connection);
         }
@@ -238,7 +342,7 @@ class SqlHandler{
             }
 
 
-            console.log(email_entry[0])
+            //console.log(email_entry[0])
             // if token for email already exists overwrite token
             
             const token_exist = await performQuery(

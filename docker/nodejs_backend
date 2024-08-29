@@ -5,7 +5,7 @@ WORKDIR /home/node/app
 RUN npm install -g pm2
 
 # Copy application dependencies
-COPY server/package*.json ./
+COPY webapp/server/package*.json ./
 RUN npm install --only=production
 
 # Copy the rest

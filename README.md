@@ -1,6 +1,7 @@
 # The Blog React App
 
 This is a simple react blog with login feature and adding and deleting blog entries
+TODO: Check cookie signature
 
 ## Infomation Schemas
 

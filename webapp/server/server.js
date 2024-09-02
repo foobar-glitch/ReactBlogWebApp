@@ -27,11 +27,10 @@ app.use(session({
 	secret: crypto_secret,
 	resave: true,
 	saveUninitialized: true,
-    cookie: { maxAge: 900000, sameSite: 'None' }
+    cookie: { maxAge: 900000, sameSite: 'None', secure: false }
 }));
 
 app.use(cors({
-    origin: 'http://localhost:3000', // Replace with the actual origin of your frontend
     credentials: true
 }));
 

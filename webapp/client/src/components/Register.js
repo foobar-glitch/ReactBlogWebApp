@@ -1,6 +1,7 @@
 import React from 'react';
 import { useState } from "react";
 import { register_endpoint } from "./Universals";
+import CsrfInput from './CsrfComponent';
 
 const Register = () => {
     const [username, setUsername] = useState('');
@@ -9,14 +10,17 @@ const Register = () => {
     const [passwordVerify, setPasswordVerify] = useState('');
 
     const [serverResponse, setServerResponse] = useState('');
+    const csrf_input = CsrfInput();
 
     const handleRegister = (e) =>{
         const loginForm = { username, email, password, passwordVerify};
+        const formData = new FormData(e.target);
+        const csrfToken = formData.get('_csrf');
         console.log(loginForm)
         e.preventDefault();
         fetch(register_endpoint, {
             method: 'POST',
-            headers: {"Content-Type": "application/json"},
+            headers: {"Content-Type": "application/json", "X-CSRF-Token": csrfToken},
             body: JSON.stringify(loginForm),
             credentials: 'include'
         }).then(
@@ -34,6 +38,8 @@ const Register = () => {
         )
         
     }
+
+    
 
     const give_form = () =>{
         return (
@@ -65,17 +71,21 @@ const Register = () => {
                     value={passwordVerify}
                     required>
                 </input>
+                {csrf_input}
                 {serverResponse && serverResponse.status !== 200 && <div className="error-message">{serverResponse.message}</div>}
                 <button type="submit">Sign Up</button>
             </form>
         )
     }
 
+
     return (
+        [
         <div className="register">
             {(!serverResponse || serverResponse.status !== 200) && give_form()}
             {serverResponse && serverResponse.status === 200 && <div className="success-message">Please verify the email you have received.</div>}
         </div>
+        ]
     )
 }
 

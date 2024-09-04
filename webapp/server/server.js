@@ -6,6 +6,7 @@ const { getBlogEntry, createBlogEntry, addCommentToBlogEntry, removeBlogEntry, f
 const { SqlHandler } = require('./Authenticator');
 const { isEmailValid } = require('./EmailValidator');
 const crypto = require('crypto');
+const csrf = require('csurf');
 const { COOKIE_EXPIRAION_TIME_MS } = require('./server_constants');
 
 
@@ -26,6 +27,7 @@ const authentication_failed_message = {
 const crypto_secret = generateRandomString(32)
 
 console.log(crypto_secret)
+
 app.use(session({
 	secret: crypto_secret,
 	resave: true,
@@ -38,8 +40,16 @@ app.use(cors({
     credentials: true
 }));
 
+const csrfProtection = csrf({ cookie: false });
+app.use(csrfProtection);
+
 app.use(express.json());
 
+
+app.get('/csrf', (req, res) => {
+    const csrfToken = req.csrfToken();
+    res.json({ status: 200, message: csrfToken });
+});
 
 app.get('/authenticate', async (req, res) => {
     const user_id = await SqlHandler.get_username_from_session(req.session);
@@ -169,6 +179,7 @@ app.delete('/blogs/:id', async (req, res) => {
 
 
 app.post('/login', async (req, res) => {
+    console.log(req.body)
     const result = await SqlHandler.login(req.body.username, req.body.password, req.session)
     if(result === 1){
         res.json({

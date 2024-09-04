@@ -4,7 +4,6 @@ const { SQLTableNames } = require('./DBConfigs');
 const { TOKEN_EXPIRATION_TIME_MS, COOKIE_EXPIRAION_TIME_MS } = require('./server_constants');
 const salt_legth = 8;
 const token_length = 16;
-// 24h
 
 
 
@@ -111,7 +110,8 @@ class SqlHandler{
 
         if(temp_email.length !== 0){
             console.log("Already registering email")
-            return 1020;
+            await performQuery(db_connection, "DELETE FROM temp_users WHERE email = ?", [email])
+            //return 1020;
         }
         
 
@@ -127,9 +127,9 @@ class SqlHandler{
             `SELECT * from temp_users WHERE username=?`,
             [username]
         )
-        if(temp_user.length >= 1){
+        if(temp_user.length > 1){
             // could do check time>10min otherwise send new link
-            console.log("Temp user already exists")
+            console.log("Temp user already existed")
             //return 10;
         }
         

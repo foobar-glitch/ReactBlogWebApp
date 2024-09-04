@@ -1,19 +1,25 @@
 import React, { useState } from 'react';
 import { forgot_password_enpoint } from './Universals'
 import { Link } from "react-router-dom";
+import CsrfInput from './CsrfComponent';
 
 const ForgotPassword = () => {
     const [email, setEmail] = useState('');
     const [errorMessage, setErrorMessage] = useState(null)
     const [success, setSucess] = useState(null)
+    const csrf_input = CsrfInput();
 
     const handleForgotPassword = (e) => {
         const loginForm = { email };
         console.log(loginForm)
         e.preventDefault();
+
+        const formData = new FormData(e.target);
+        const csrfToken = formData.get('_csrf');
+
         fetch(forgot_password_enpoint, {
             method: 'POST',
-            headers: {"Content-Type": "application/json"},
+            headers: {"Content-Type": "application/json", "X-CSRF-Token": csrfToken},
             body: JSON.stringify(loginForm),
             credentials: 'include'
         }).then(
@@ -34,7 +40,10 @@ const ForgotPassword = () => {
         })
     }
 
+    
+
     return (
+        (
         <div className="register">
             {!success &&
             <form onSubmit={handleForgotPassword}>
@@ -44,6 +53,7 @@ const ForgotPassword = () => {
                     value={email} 
                     required>
                 </input>
+                {csrf_input}
                 {errorMessage &&  <div className="error-message">{errorMessage}</div>}
                 <button type="submit">Reset Password</button>
             </form>
@@ -56,6 +66,7 @@ const ForgotPassword = () => {
             
             }
         </div>
+        )
     )
 }
 

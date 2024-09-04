@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useLocation } from 'react-router-dom';
 import { reset_by_token_endpoint } from './Universals'
 import useFetchGET from "./useFetchGET";
+import CsrfInput from './CsrfComponent';
 
 
 const ResetByToken = () => {
@@ -10,6 +11,8 @@ const ResetByToken = () => {
     const [password, setPassword] = useState('');
     const [verifyPassword, setVerifyPassword] = useState('');
     const [resetSuccessfull, setResetsuccessfull] = useState(false)
+
+    const csrf_input = CsrfInput();
 
     const getQueryParams = () => {
         const params = new URLSearchParams(location.search);
@@ -25,16 +28,19 @@ const ResetByToken = () => {
         if(password !== verifyPassword){
             return <div> Passwords dont match</div>
         }
+        const formData = new FormData(e.target);
+        const csrfToken = formData.get('_csrf');
+        const token_from_form = formData.get('_token');
 
         const loginForm = {
-            "token" : token,
+            "token" : token_from_form,
             "password" : password, 
             "verifyPassword" : verifyPassword,
         };
         
         fetch(reset_by_token_endpoint, {
             method: 'POST',
-            headers: {"Content-Type": "application/json"},
+            headers: {"Content-Type": "application/json", "X-CSRF-Token": csrfToken},
             body: JSON.stringify(loginForm),
             credentials: 'include'
         }).then(
@@ -72,7 +78,8 @@ const ResetByToken = () => {
                         value={verifyPassword}
                         required>
                     </input>
-                    <input type="token" value={token} required hidden></input>
+                    <input type="hidden" name='_token' value={token} required></input>
+                    {csrf_input}
                     <button type="submit">Reset</button>
                 </form>
             </div>
@@ -87,7 +94,9 @@ const ResetByToken = () => {
 
     const token = getQueryParams()['token'];
     const { data: tokenResponse, isPending, error } = useFetchGET(`${reset_by_token_endpoint}?token=${token}`);
+
     return(
+        (
         <div className='reset-by-token'>
             {!isPending && !resetSuccessfull && tokenResponse && tokenResponse.status===400 && 
             <div className='invalid-token'>This token is not valid</div>
@@ -97,6 +106,7 @@ const ResetByToken = () => {
             }
             {!isPending && resetSuccessfull && <div className='password-reset'>Password reset was successfull</div>}
         </div>
+        )
     );
 }
 

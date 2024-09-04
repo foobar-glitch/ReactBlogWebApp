@@ -1,5 +1,5 @@
-const api_endpoint = 'http://localhost:8080';
-//const api_endpoint = "/api";
+//const api_endpoint = 'http://localhost:8080';
+const api_endpoint = "/api";
 const login_endpoint = api_endpoint + '/login';
 const logout_endpoint = api_endpoint + '/logout';
 const blogs_endpoint = api_endpoint + '/blogs';
@@ -9,6 +9,7 @@ const register_endpoint = api_endpoint + '/register'
 const forgot_password_enpoint = api_endpoint + '/forgot'
 const reset_by_token_endpoint = api_endpoint + '/forgot/reset'
 const register_by_token_endpoint = api_endpoint + '/register/validate'
+const csrf_endpoint = api_endpoint + '/csrf'
 
 
-export {blogs_endpoint, login_endpoint, logout_endpoint, register_endpoint, authenticate_endpoint, profile_data_endpoint, forgot_password_enpoint, reset_by_token_endpoint, register_by_token_endpoint};
+export {blogs_endpoint, login_endpoint, logout_endpoint, register_endpoint, authenticate_endpoint, profile_data_endpoint, forgot_password_enpoint, reset_by_token_endpoint, register_by_token_endpoint, csrf_endpoint};

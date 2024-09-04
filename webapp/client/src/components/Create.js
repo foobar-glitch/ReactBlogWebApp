@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { blogs_endpoint } from "./Universals";
 import { useNavigate } from 'react-router-dom';
+import CsrfInput from './CsrfComponent';
 
 const Create = () => {
     const [title, setTitle] = useState('');
@@ -9,16 +10,19 @@ const Create = () => {
     const [isPending, setIsPending] = useState(false);
     const [errorMessage, setErrorMessage] = useState(null);
     const history = useNavigate();
+    const csrf_input = CsrfInput();
 
     const handleSubmit = (e) => {
         e.preventDefault();
         //const blog = { title, body, author };
         const blog = { title, body };
         setIsPending(true);
+        const formData = new FormData(e.target);
+        const csrfToken = formData.get('_csrf');
 
         fetch(blogs_endpoint, {
             method: 'POST',
-            headers: {"Content-Type": "application/json"},
+            headers: {"Content-Type": "application/json",  "X-CSRF-Token": csrfToken},
             body: JSON.stringify(blog),
             credentials: 'include'
         }).then((res) => {
@@ -37,8 +41,10 @@ const Create = () => {
         })
     }
 
+    
 
     return(
+        (
         <div className="create"> 
         {errorMessage &&<div className="error-message">{errorMessage}</div>}
             <h2>Add a New Blog</h2>
@@ -56,11 +62,12 @@ const Create = () => {
                     value={body}
                     onChange={(e) => setBody(e.target.value)}
                  />
+                 {csrf_input}
                  {!isPending && <button>Add Blog</button>}
                  {isPending && <button disabled>Adding blog ...</button>}
             </form>
-            
         </div>
+        )
     );
 }
 

@@ -14,6 +14,7 @@
     "build": "^0.1.4",
     "cors": "^2.8.5",
     "crypto-random-string": "^5.0.0",
+    "csurf": "^1.11.0",
     "dotenv": "^16.4.5",
     "export": "^0.1.337",
     "express": "^4.18.2",

@@ -1,5 +1,4 @@
 import React from 'react';
-import { useState } from "react";
 import { useLocation } from 'react-router-dom';
 import { register_by_token_endpoint } from './Universals'
 import useFetchGET from "./useFetchGET";

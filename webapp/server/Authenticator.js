@@ -1,10 +1,11 @@
 const { connectToDatabase, closeDatabaseConnection, performQuery } = require('./DatabaseConnector');
 const crypto = require('crypto');
 const { SQLTableNames } = require('./DBConfigs');
+const { TOKEN_EXPIRATION_TIME_MS, COOKIE_EXPIRAION_TIME_MS } = require('./server_constants');
 const salt_legth = 8;
 const token_length = 16;
 // 24h
-const token_expire_time = 24 * 60 * 60 * 1000;
+
 
 
 class SqlHandler{
@@ -14,6 +15,7 @@ class SqlHandler{
         try{
             db_connection = await connectToDatabase();
             const currentTime = new Date();
+            const cookie_expire_time = new Date(currentTime.getDate() + COOKIE_EXPIRAION_TIME_MS)
 
             const salt_rows = await performQuery(
                 db_connection, 
@@ -48,7 +50,7 @@ class SqlHandler{
             await performQuery(
                 db_connection,
                 `INSERT ${SQLTableNames.COOKIE} (userId, cookieData, created_at, expired_at) VALUES (?, SHA2(?, 256), ?, ?)`,
-                [rows[0].userId, session.id, currentTime, session.cookie._expires]
+                [rows[0].userId, session.id, currentTime, cookie_expire_time]
             );
             return 1;
         }finally{
@@ -133,7 +135,7 @@ class SqlHandler{
         
 
         const currentTime = new Date();
-        const nextDayTime = new Date(currentTime.getTime() + token_expire_time);
+        const nextDayTime = new Date(currentTime.getTime() + TOKEN_EXPIRATION_TIME_MS);
 
         const register_token = crypto.randomBytes(token_length).toString('hex');
         const register_table = await performQuery(
@@ -369,7 +371,7 @@ class SqlHandler{
 
 
             const currentTime = new Date();
-            const nextDayTime = new Date(currentTime.getTime() + token_expire_time);
+            const nextDayTime = new Date(currentTime.getTime() + TOKEN_EXPIRATION_TIME_MS);
 
             // Create random reset token
             const reset_token = crypto.randomBytes(token_length).toString('hex');

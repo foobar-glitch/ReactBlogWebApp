@@ -6,6 +6,9 @@ const { getBlogEntry, createBlogEntry, addCommentToBlogEntry, removeBlogEntry, f
 const { SqlHandler } = require('./Authenticator');
 const { isEmailValid } = require('./EmailValidator');
 const crypto = require('crypto');
+const { COOKIE_EXPIRAION_TIME_MS } = require('./server_constants');
+
+
 
 function generateRandomString(length) {
     return crypto.randomBytes(length).toString('hex').slice(0, length);
@@ -27,10 +30,11 @@ app.use(session({
 	secret: crypto_secret,
 	resave: true,
 	saveUninitialized: true,
-    cookie: { maxAge: 900000, sameSite: 'None', secure: false }
+    cookie: { maxAge: COOKIE_EXPIRAION_TIME_MS, sameSite: 'None', secure: false }
 }));
 
 app.use(cors({
+    origin: 'http://localhost:3000',
     credentials: true
 }));
 

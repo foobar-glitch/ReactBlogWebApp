@@ -183,8 +183,6 @@ app.delete('/blogs/:id', async (req, res) => {
 
 app.post('/login', async (req, res) => {
     //console.log(req.body)
-    console.log(req.csrfToken())
-    console.log(req.headers)
     const result = await SqlHandler.login(req.body.username, req.body.password, req.session)
     if(result === 1){
         res.json({

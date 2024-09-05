@@ -1,7 +1,6 @@
 # The Blog React App
 
 This is a simple react blog with login feature and adding and deleting blog entries
-TODO: Check cookie signature
 
 ## Infomation Schemas
 
@@ -217,3 +216,6 @@ Once the services are running just run the script to initialize the databases
 ```
 You could mount MariaDB and MongoDB to a persistent storage otherwise it will be ephermal/volantile storage that 
 is deleted once the container is deleted
+
+TODO:
+Register token similar to forgot password token send over email in a seperate table.

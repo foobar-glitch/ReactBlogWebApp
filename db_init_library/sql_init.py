@@ -3,8 +3,8 @@ import os
 from library.mariadb import init_db, create_users
 
 def give_mysql_env():
-    load_dotenv("/var/www/private/nodejs/rootdata/.env.sql.internals")
-    load_dotenv("/var/www/private/nodejs/userdata/.env.sql.internals")
+    load_dotenv("/var/www/private/nodejs/blog/rootdata/.env.sql.internals")
+    load_dotenv("/var/www/private/nodejs/blog/userdata/.env.sql.internals")
 
     SQL_HOST = "127.0.0.1"
     SQL_PORT = 3306#int(os.getenv('MARIADB_PORT'))

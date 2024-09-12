@@ -219,3 +219,20 @@ is deleted once the container is deleted
 
 TODO:
 Register token similar to forgot password token send over email in a seperate table.
+In the Apache config it would make sense to not allow every access to the api, but to whitelist every specific
+API endpoint. It could be that there are endpoints that shouldn't be reachable from an enduser but only for
+an admin. For example there could be a ``` /api/update-database``` endpoint that an enduser shouldn't be able
+to access, but only the server admin/ person with direct access to the server. For that I could overwrite the 
+Apache settings. Instead of allowing every request to ```/api``` limit it.
+```httpd
+# Proxy specific public endpoints
+<Location /api/publicendpoint1>
+    ProxyPass "http://backendserver:8080/api/publicendpoint1"
+    ProxyPassReverse "http://backendserver:8080/api/publicendpoint1"
+</Location>
+
+<Location /api/publicendpoint2>
+    ProxyPass "http://backendserver:8080/api/publicendpoint2"
+    ProxyPassReverse "http://backendserver:8080/api/publicendpoint2"
+</Location>
+```

@@ -149,9 +149,9 @@ app.post('/blogs', async (req, res) => {
             message: "No authority to add entry."
         })
     }
-    const dirtyHtml = req.body.body
-    const cleanHtml = sanitizeHtml(dirtyHtml, {
-        allowedTags: [ 'b', 'i', 'em', 'strong', 'a', 'p', 'ul', 'li', 'ol', 'h1', 'h2' ],
+    const dirtyHtml_body = req.body.body
+    const cleanHtml = sanitizeHtml(dirtyHtml_body, {
+        allowedTags: [ 'b', 'i', 'em', 'strong', 'a', 'p', 'ul', 'li', 'ol', 'h1', 'h2', 's' ],
         allowedAttributes: { 'a': [ 'href' ] },
         disallowedTagsMode: 'escape' // This will escape disallowed tags rather than remove them
       });

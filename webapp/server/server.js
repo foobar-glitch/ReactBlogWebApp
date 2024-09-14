@@ -7,7 +7,9 @@ const { SqlHandler } = require('./Authenticator');
 const { isEmailValid } = require('./EmailValidator');
 const crypto = require('crypto');
 const csrf = require('csurf');
+const sanitizeHtml = require('sanitize-html');
 const { COOKIE_EXPIRAION_TIME_MS } = require('./server_constants');
+
 
 const local_domain = "http://localhost:3000"
 const remote_domain = "http://[2a02:908:e845:3560::8070]:80"
@@ -16,6 +18,7 @@ const server_domain = local_domain
 function generateRandomString(length) {
     return crypto.randomBytes(length).toString('hex').slice(0, length);
 }
+
 
 
 const app = express();
@@ -146,7 +149,14 @@ app.post('/blogs', async (req, res) => {
             message: "No authority to add entry."
         })
     }
-    const result = await createBlogEntry(req.body.title, req.body.body, profile_data.username)
+    const dirtyHtml = req.body.body
+    const cleanHtml = sanitizeHtml(dirtyHtml, {
+        allowedTags: [ 'b', 'i', 'em', 'strong', 'a', 'p', 'ul', 'li', 'ol', 'h1', 'h2' ],
+        allowedAttributes: { 'a': [ 'href' ] },
+        disallowedTagsMode: 'escape' // This will escape disallowed tags rather than remove them
+      });
+
+    const result = await createBlogEntry(req.body.title, cleanHtml, profile_data.username)
     res.json({
         status: 200, message: `User '${profile_data.username}' added a blog entry`
     })

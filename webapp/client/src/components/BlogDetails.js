@@ -4,6 +4,7 @@ import useFetchGET from "./useFetchGET";
 import { blogs_endpoint } from "./Universals";
 import BlogEntryCommentsList from "./BlogEntryCommentsList";
 import CsrfInput from './CsrfComponent';
+import InsertHtmlData from './InsertHtmlData';
 
 
 const BlogDetails = () =>{
@@ -85,11 +86,16 @@ const BlogDetails = () =>{
             [
                 (
                 <article class='blog-article'>
-                    <h2>{ data.message.title }</h2>
+                    <div className='blog-title'>
+                        <h1>{ data.message.title }</h1>
+                    </div>
+                    
                     <p class="meta-info">Created at { data.message.createdAt } <br />
                     Written by <b><i>{ data.message.author }</i></b>
                     </p>
-                    <div className="blog-body">{ data.message.body }</div>
+                    <div className="blog-body">
+                        <InsertHtmlData htmlContent={data.message.body} />
+                    </div>
                     <form onSubmit={handleBlogDeletion}>
                         {csrf_input}
                         <button>Delete Blog</button>

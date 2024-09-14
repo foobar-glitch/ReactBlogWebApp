@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { blogs_endpoint } from "./Universals";
 import { useNavigate } from 'react-router-dom';
 import CsrfInput from './CsrfComponent';
+import RichTextEditor from './RichtextEditor';
 
 const Create = () => {
     const [title, setTitle] = useState('');
@@ -14,6 +15,11 @@ const Create = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        console.log(e)
+        if (e.key === 'Enter') {
+            e.preventDefault(); // Prevent the Enter key from triggering any action
+            return
+        }
         //const blog = { title, body, author };
         const blog = { title, body };
         setIsPending(true);
@@ -44,31 +50,33 @@ const Create = () => {
     
 
     return(
-        (
+        
+        <>
         <div className="create"> 
         {errorMessage &&<div className="error-message">{errorMessage}</div>}
             <h2>Add a New Blog</h2>
             <form onSubmit={handleSubmit}>
-                <label>Blog Title:</label>
                 <input
-                 type="text"
-                 required
-                 value={title}
-                 onChange={(e) => setTitle(e.target.value)}
-                 />
-                 <label>Blog Body:</label>
-                <textarea
+                    className='title'
+                    placeholder='Blog Title'
+                    type="text"
                     required
-                    value={body}
-                    onChange={(e) => setBody(e.target.value)}
-                 />
-                 {csrf_input}
-                 {!isPending && <button>Add Blog</button>}
-                 {isPending && <button disabled>Adding blog ...</button>}
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                />
+                <div className='blog'>
+                    <RichTextEditor value={body} setBody={setBody} />
+                </div>
+                {csrf_input}
+                {!isPending && <button className='adding-button' type="submit">Add Blog</button>}
+                {isPending && <button className='adding-button' disabled>Adding blog ...</button>}
             </form>
         </div>
-        )
+        
+        
+        </>
     );
+
 }
 
 export default Create;

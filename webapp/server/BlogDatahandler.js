@@ -1,10 +1,11 @@
 const { MongoClient, ObjectId } = require('mongodb');
 const { MongoSecrets, MongoCollections } = require('./DBConfigs');
 const uri = `mongodb://${MongoSecrets.USER}:${MongoSecrets.USER_PASSWORD}@${MongoSecrets.HOST}:${MongoSecrets.PORT}`;
-const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+
 
 async function getBlogEntry(id_num=null) {
     try {
+        const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
         await client.connect();
         const database = client.db(MongoSecrets.DB_NAME);
         const collection = database.collection(MongoCollections.BLOG_ENTRIES);
@@ -27,6 +28,7 @@ async function getBlogEntry(id_num=null) {
 
 async function createBlogEntry(title_val, body_val, author_val){
     try{
+        const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
         await client.connect();
         const database = client.db(MongoSecrets.DB_NAME);
         const collection = database.collection(MongoCollections.BLOG_ENTRIES);
@@ -56,6 +58,7 @@ async function createBlogEntry(title_val, body_val, author_val){
 
 async function addCommentToBlogEntry(userId, user, comment, blog_id){
     try {
+        const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
         const entry = await getBlogEntry(blog_id);
         if(!entry){
             return 0;
@@ -113,6 +116,7 @@ async function addCommentToBlogEntry(userId, user, comment, blog_id){
 
 async function removeBlogEntry(id_val){
     try{
+        const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
         await client.connect();
         const database = client.db(MongoSecrets.DB_NAME);
         const collection = database.collection(MongoCollections.BLOG_ENTRIES);
@@ -127,6 +131,7 @@ async function removeBlogEntry(id_val){
 
 async function findCommentByCommentIdInBlog(blogId, commentId){
     try{
+        const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
         await client.connect()
         const database = client.db(MongoSecrets.DB_NAME);
         const collection = database.collection(MongoCollections.BLOG_ENTRIES);
@@ -162,6 +167,7 @@ async function findCommentByCommentIdInBlog(blogId, commentId){
 
 async function deleteCommentOfBlogByCommentId(blogId, commentId){
     try{
+        const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
         await client.connect()
         const database = client.db(MongoSecrets.DB_NAME);
         const collection = database.collection(MongoCollections.BLOG_ENTRIES);

@@ -138,7 +138,9 @@ And enter the password
 ## httpd
 In Apache add this config
 #### Backend Server
-Create an environment for the SQL Datbases like this
+Create an environment for the SQL Datbases like this. In _webapp/server_ (local development) or in _/var/www/private/nodejs/userdata/_
+(production). In _webapp/server_ just combine: # must match _.env.mongo.internals_ and _.env.sql.internals_ from _/var/www/private/nodejs/userdata/_
+ 
 ```.env
 # MariaDB config
 ##.env.sql.internals

@@ -48,7 +48,7 @@ const Profile = () => {
     const { data: profile_data, isPending, error } = useFetchGET(profile_data_endpoint, []);
     return(
         <div className="profile">
-            {profile_data && displayInfo(profile_data)}
+            {!isPending && !error && profile_data && displayInfo(profile_data)}
             <button onClick={handleLogout}>Logout</button>
         </div>
     );

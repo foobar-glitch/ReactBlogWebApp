@@ -6,7 +6,7 @@ const InsertHtmlData = ({ htmlContent }) => {
   const cleanHtml = DOMPurify.sanitize(htmlContent);
 
   return (
-    <div
+    <div className='inserted-html'
       // Render sanitized HTML
       dangerouslySetInnerHTML={{ __html: cleanHtml }}
     />

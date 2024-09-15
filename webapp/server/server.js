@@ -155,7 +155,7 @@ app.post('/blogs', async (req, res) => {
     }
     const dirtyHtml_body = req.body.body
     const cleanHtml = sanitizeHtml(dirtyHtml_body, {
-        allowedTags: [ 'b', 'i', 'em', 'strong', 'a', 'p', 'ul', 'li', 'ol', 'h1', 'h2', 's' ],
+        allowedTags: [ 'b', 'i', 'em', 'strong', 'a', 'p', 'ul', 'li', 'ol', 'h1', 'h2', 's', 'br' ],
         allowedAttributes: { 'a': [ 'href' ] },
         disallowedTagsMode: 'escape' // This will escape disallowed tags rather than remove them
       });

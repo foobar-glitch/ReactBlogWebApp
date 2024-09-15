@@ -19,8 +19,8 @@ services:
       dockerfile: docker/nodejs_backend
     image: nodejs-server
     env_file:
-      - /var/www/private/nodejs/userdata/.env.mongo.internals
-      - /var/www/private/nodejs/userdata/.env.sql.internals
+      - /var/www/private/nodejs/blog/userdata/.env.mongo.internals
+      - /var/www/private/nodejs/blog/userdata/.env.sql.internals
     container_name: backend-running  # Set a custom name for the container
     environment:
       - MARIADB_HOST=mariadbserver

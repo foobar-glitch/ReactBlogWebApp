@@ -65,9 +65,13 @@ app.get('/authenticate', async (req, res) => {
             message: "Authentication failed"
         })
     }else{
+        const user_data = await SqlHandler.get_profile_info_from_userid(user_id)
         res.json({
             status: 200,
-            message: "Authentication successful"
+            message: {
+                username: user_data.username,
+                role: user_data.role
+            }
         })
     }
 

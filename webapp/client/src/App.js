@@ -11,15 +11,34 @@ import Register from './components/Register';
 import ForgotPassword from './components/ForgotPassword';
 import ResetByToken from './components/ResetByToken'
 import RegisterByToken from './components/RegisterByToken';
+import useFetchGET from './components/useFetchGET';
+import ProtectedRoute from './components/ProtectedRoute';
+import { authenticate_endpoint } from './components/Universals';
+
+function isAuthorOrAdmin(profile_data){
+  console.log(profile_data)
+  return profile_data.message.role === "author" || profile_data.message.role === "admin"
+}
+
 
 function App() {
-  return React.createElement(BrowserRouter, null,
+
+  const { data: profile_data, isPending, error } = useFetchGET(authenticate_endpoint);
+
+
+  return profile_data && !isPending && !error && React.createElement(BrowserRouter, null,
     React.createElement('div', { className: 'App' },
       React.createElement(Navbar),
       React.createElement('div', { className: 'content' },
         React.createElement(Routes, null,
           React.createElement(Route, { path: "/", element: React.createElement(Home) }),
-          React.createElement(Route, { path: "/create", element: React.createElement(Create) }),
+          React.createElement(Route, { 
+            path: "/create", 
+            element: React.createElement(ProtectedRoute, {
+              component: Create,
+              condition: isAuthorOrAdmin(profile_data)
+            })
+          }),
           React.createElement(Route, { path: `/blogs/:blogId`, element: React.createElement(BlogDetails) }),
           React.createElement(Route, { path: "/login", element: React.createElement(Login) }),
           React.createElement(Route, { path: "/register", element: React.createElement(Register) }),

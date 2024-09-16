@@ -14,10 +14,14 @@ import RegisterByToken from './components/RegisterByToken';
 import useFetchGET from './components/useFetchGET';
 import ProtectedRoute from './components/ProtectedRoute';
 import { authenticate_endpoint } from './components/Universals';
+import AdminPanel from './components/AdminPanel';
 
 function isAuthorOrAdmin(profile_data){
-  console.log(profile_data)
-  return profile_data.message.role === "author" || profile_data.message.role === "admin"
+  return profile_data.status === 200 && (profile_data.message.role === "author" || profile_data.message.role === "admin")
+}
+
+function isAdmin(profile_data){
+  return profile_data.status === 200 && profile_data.message.role === "admin"
 }
 
 
@@ -37,6 +41,13 @@ function App() {
             element: React.createElement(ProtectedRoute, {
               component: Create,
               condition: isAuthorOrAdmin(profile_data)
+            })
+          }),
+          React.createElement(Route, { 
+            path: "/admin", 
+            element: React.createElement(ProtectedRoute, {
+              component: AdminPanel,
+              condition: isAdmin(profile_data)
             })
           }),
           React.createElement(Route, { path: `/blogs/:blogId`, element: React.createElement(BlogDetails) }),

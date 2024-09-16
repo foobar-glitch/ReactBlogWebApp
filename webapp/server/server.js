@@ -13,7 +13,7 @@ const { COOKIE_EXPIRAION_TIME_MS } = require('./server_constants');
 
 const local_domain = "http://localhost:3000"
 const remote_domain = "http://[2a02:908:e845:3560::8070]:80"
-const server_domain = remote_domain
+const server_domain = local_domain
 
 function generateRandomString(length) {
     return crypto.randomBytes(length).toString('hex').slice(0, length);
@@ -437,6 +437,39 @@ app.delete('/blogs/:blogId/comments/:commentId', async (req, res) => {
     
 })
 
+
+app.get('/admin', async (req, res) => {
+    if(!req.session){
+        return res.json(authentication_failed_message);
+    }
+    const profile_data = await SqlHandler.get_profile_info_from_session(req.session);
+    if(!profile_data){
+        return res.json(authentication_failed_message)
+    }
+    if(profile_data.role !== 'admin'){
+        return res.json({
+            status: 403,
+            message: "Missing Authority"
+        })
+    }
+    const all_users = await SqlHandler.get_all_users()
+    let all_user_vales = [];
+    all_users.map((user) => {
+        all_user_vales.push(
+            {
+                user_id: user.userId, 
+                user_name: user.username, 
+                user_mail: user.email,
+                user_role: user.role
+            }
+        )
+    })
+    return res.json({
+        status: 200,
+        message: {allUsers: all_user_vales}
+    })
+
+})
 
 app.listen(8080, () => {
     console.log(`Server is running on port 8080.`);

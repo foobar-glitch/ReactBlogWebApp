@@ -468,8 +468,25 @@ class SqlHandler{
         }finally{
             await closeDatabaseConnection(db_connection)
         }
-        
     }
+
+    static async get_all_users(){
+        let db_connection
+        try{
+            db_connection = await connectToDatabase();
+            // delete token with userID
+            const all_users = await performQuery(
+                db_connection,
+                `SELECT userId, username, email, role from ${SQLTableNames.USERS} WHERE role!='admin'`,
+                []
+            )
+            return all_users
+        }finally{
+            await closeDatabaseConnection(db_connection)
+        }
+
+    }
+
 }
 
 

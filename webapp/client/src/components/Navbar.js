@@ -17,6 +17,11 @@ const Navbar = () => {
                         borderRadius: '8px'
                     }}>New Blog</Link>
                 )
+                if( profile_data.message.role === "admin"){
+                    html_code.push(
+                        <Link to="/admin">Admin</Link>
+                    )
+                }
             }
             html_code.push(
                 <Link to="/profile">Profile</Link>

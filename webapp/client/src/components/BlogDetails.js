@@ -10,6 +10,8 @@ import InsertHtmlData from './InsertHtmlData';
 const BlogDetails = () =>{
     const { blogId } = useParams();
     const { data, error, isPending } = useFetchGET(`${blogs_endpoint}/${blogId}`);
+    ///blogs/:id/comments
+    const { data: comment_data, isPending_comment, error_comment } = useFetchGET(`${blogs_endpoint}/${blogId}/comments`);
     const history = useNavigate();
     const [comment, setComment] = useState('');
     const [deleteBlogRes, setDeleteBlogRes] = useState(null);
@@ -120,14 +122,14 @@ const BlogDetails = () =>{
                 
                 </form>
                 ),
-                (data && data.status == 200 && <BlogEntryCommentsList comments={data.message.comments} title="All Comments"/>)
+                (!isPending_comment && !error_comment && comment_data && comment_data.status == 200 && <BlogEntryCommentsList comments={comment_data.message.comments} title="All Comments"/>
+                )
                 ]
             ]}
             { data && data.status === 404 && (<div className='not-found'>Entry not found</div>)}
-            
         </div>
     );
 }
 
-
+//!isPending_comment && !error_comment && comment_data && comment_data.status == 200 && <BlogEntryCommentsList comments={comment_data.message.comments} title="All Comments"/>
 export default BlogDetails;

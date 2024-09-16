@@ -10,14 +10,10 @@ const BlogEntryCommentsList = ({comments}) => {
     const [editText, setEditTextt] = useState('')
     const csrf_input = CsrfInput();
 
-    const handleDeleteComment = (e) => {
-        e.preventDefault();
-        const formData = new FormData(e.target);
-        const csrfToken = formData.get('_csrf');
-        const commentId = formData.get('_commentId')
-
+    const handleDeleteComment = (commentId) => {
+        const csrf_value = document.querySelector('div._csrf').querySelector('input').value
         fetch(`${blogs_endpoint}/${blogId}/comments/${commentId}`, {
-            method: 'DELETE', headers: {"X-CSRF-Token": csrfToken}, credentials: 'include' 
+            method: 'DELETE', headers: {"X-CSRF-Token": csrf_value}, credentials: 'include' 
         }).then(
             (res) =>{
             if(!res.ok){
@@ -67,7 +63,6 @@ const BlogEntryCommentsList = ({comments}) => {
         (
         <div className="comment-list">
             {error && <div className='error-message'>{error}</div>}
-            <form className='comment-form' onSubmit={handleDeleteComment}>
                 {comments.map((comment) => ( 
                     <div className="comment-body">
                         <div className='comment'>
@@ -78,12 +73,10 @@ const BlogEntryCommentsList = ({comments}) => {
                             {enableEdit && giveEdit()}
                             {!enableEdit && <div className='entry' onClick={editComment}>{comment.comment}</div>}
                         </div>
-                        <input type='hidden' name="_commentId" value={comment.commentId} required ></input>
-                        <button type='submit' formAction='action_delete'> DEL</button>
+                        <button onClick={() => handleDeleteComment(comment.commentId)}>DEL</button>
                     </div>
                 ))}
-            {csrf_input}
-            </form>
+            <div className="_csrf">{csrf_input}</div>
         </div>
         )
     );

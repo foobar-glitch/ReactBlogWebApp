@@ -2,7 +2,7 @@
 var session = require('express-session')
 const express = require('express');
 const cors = require('cors');
-const { getBlogEntry, createBlogEntry, addCommentToBlogEntry, removeBlogEntry, findCommentByCommentIdInBlog, deleteCommentOfBlogByCommentId } = require('./BlogDatahandler');
+const { getBlogEntry, createBlogEntry, addCommentToBlogEntry, removeBlogEntry, findCommentByCommentIdInBlog, deleteCommentOfBlogByCommentId, getCommentsOfBlogId } = require('./BlogDatahandler');
 const { SqlHandler } = require('./Authenticator');
 const { isEmailValid } = require('./EmailValidator');
 const crypto = require('crypto');
@@ -87,10 +87,7 @@ app.get('/authenticate', async (req, res) => {
 app.get('/blogs', (req, res) => {
     getBlogEntry().then(
         collection_entries => {
-            const changed_date_format = collection_entries.map(
-                ({ comments, ...rest }) => ({...rest})
-            )
-            res.json(changed_date_format);
+            res.json(collection_entries);
         }
     )
 });
@@ -107,7 +104,6 @@ app.get('/blogs/:id', (req, res) => {
                     title: collection_entries.title,
                     body: collection_entries.body,
                     author: collection_entries.author,
-                    comments: collection_entries.comments.map(({ userId, ...rest }) => rest)
                 }
 
                 res.json({status: 200, message: reduced_collection});
@@ -118,6 +114,14 @@ app.get('/blogs/:id', (req, res) => {
         }
     )
 });
+
+
+app.get('/blogs/:id/comments', async (req, res) => {
+    const blog_id = req.params.id
+    all_comments = await getCommentsOfBlogId(blog_id)
+    return res.json({status: 200, message: {comments: all_comments}})
+})
+
 
 app.post('/blogs/:id/comments', async (req, res) => {
     if(!req.session){

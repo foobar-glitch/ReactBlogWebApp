@@ -40,7 +40,6 @@ async function createBlogEntry(title_val, body_val, author_val){
             title: title_val,
             body: body_val,
             author: author_val,
-            comments: []
         };
 
         result = await collection.insertOne(newBlog);
@@ -52,62 +51,6 @@ async function createBlogEntry(title_val, body_val, author_val){
 
 }
 
-async function addCommentToBlogEntry(userId, user, comment, searched_blog_id){
-    const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
-    try {
-        const entry = await getBlogEntry(searched_blog_id);
-        if(!entry){
-            return 0;
-        }
-        /*
-        const newComment = {
-            blogId: new ObjectId(searched_blog_id),
-            commentId : new ObjectId(),
-            userId: userId,
-            username: user,
-            comment: comment,
-            createdAt: currentTime.toUTCString()
-        }
-         */
-        // Do something with the entry
-        const currentTime = new Date();
-        await client.connect();
-        const database = client.db(MongoSecrets.DB_NAME);
-        const collection = database.collection(MongoCollections.BLOG_ENTRIES);
-
-        result = await collection.updateOne(
-            {blogId: new ObjectId(searched_blog_id)}, { $push: {
-                comments: {
-                    $each: [{
-                        commentId: new ObjectId(),
-                        userId: userId,
-                        username: user,
-                        comment: comment,
-                        createdAt: currentTime.toUTCString()
-                    }],
-                    $position: 0 // Insert at the front of the array
-                }
-            }}
-        )
-
-        if (result.modifiedCount == 1){
-            console.log('Comment added successfully to blog post.');
-            return 0
-        }
-            
-        if (result.modifiedCount > 1){
-            console.log("More than one edited")
-            throw Error("This should not happen")
-        }
-        if (restult.modifiedCount < 1){
-            console.log('No matching blog post found or comment was not added.');
-            return 1
-        }
-        throw Error("An error occured")
-      } catch (error) {
-        // Handle the error
-      }
-}
 
 async function removeBlogEntry(searched_blog_id){
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -124,63 +67,92 @@ async function removeBlogEntry(searched_blog_id){
 
 }
 
-async function findCommentByCommentIdInBlog(blogId, commentId){
+
+async function getCommentsOfBlogId(searched_blog_id) {
+    const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+    try{
+        await client.connect();
+        const database = client.db(MongoSecrets.DB_NAME);
+        const collection = database.collection(MongoCollections.COMMENT_ENTRIES);
+        result = await collection.find({blogId: new ObjectId(searched_blog_id)}).sort({ createdAt: -1 }).toArray();
+        return result
+
+
+    }finally{
+        client.close()
+    }
+    
+
+}
+
+async function addCommentToBlogEntry(userId, user, comment, searched_blog_id){
+    const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+    try {
+        const entry = await getBlogEntry(searched_blog_id);
+        if(!entry){
+            return 0;
+        }
+        const currentTime = new Date();
+        await client.connect();
+        const database = client.db(MongoSecrets.DB_NAME);
+        const collection = database.collection(MongoCollections.COMMENT_ENTRIES);
+        const newComment = {
+            blogId: new ObjectId(searched_blog_id),
+            commentId : new ObjectId(),
+            userId: userId,
+            username: user,
+            comment: comment,
+            createdAt: currentTime.toUTCString()
+        }
+        result = await collection.insertOne(newComment);
+        if (result.acknowledged){
+            console.log('Comment added successfully to blog post.');
+            return 0
+        }
+        else{
+            return 1
+        }
+      } catch (error) {
+        // Handle the error
+      } finally {
+        client.close()
+      }
+}
+
+
+async function findCommentByCommentIdInBlog(searched_blog_id, searched_comment_id){
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
     try{
         await client.connect()
         const database = client.db(MongoSecrets.DB_NAME);
-        const collection = database.collection(MongoCollections.BLOG_ENTRIES);
-        const blog_object_id = new ObjectId(blogId)
-        const comment_object_id = new ObjectId(commentId)
-        const comments = await collection.aggregate([
-            {
-              // Match the blog document based on the blogId field
-              $match: { blogId: blog_object_id }
-            },
-            {
-              // Project the comments field and filter only the relevant comment
-              $project: {
-                _id: 0, // Exclude the _id field
-                comments: {
-                  $filter: {
-                    input: '$comments',
-                    as: 'comment',
-                    cond: { $eq: ['$$comment.commentId', comment_object_id] } // Match the commentId
-                  }
-                }
-              }
-            }
-          ]).toArray();
-        if(comments.length !== 1){
-            throw Error("There should only be one comment with that id in that blog")
-        }
+        const collection = database.collection(MongoCollections.COMMENT_ENTRIES);
+        const comments = await collection.findOne({blogId: new ObjectId(searched_blog_id), commentId: new ObjectId(searched_comment_id)});
         //if(comments[0].length !== 1){
         //    throw Error("There should only be one comment with that id in that blog 2")
         //}
-        return comments[0].comments[0]
+        return comments
     }finally{
         await client.close()
     }
 }
 
-async function deleteCommentOfBlogByCommentId(blogId, commentId){
+async function deleteCommentOfBlogByCommentId(searched_blog_id, searched_comment_id){
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
     try{
         await client.connect()
         const database = client.db(MongoSecrets.DB_NAME);
-        const collection = database.collection(MongoCollections.BLOG_ENTRIES);
-        const result = await collection.updateOne(
-            { blogId: new ObjectId(blogId) }, // Filter to match the document with the given blogId
-            { $pull: { comments: { commentId: new ObjectId(commentId) } } } // Pull (remove) the comment with the specified commentId
-        );
-
+        const collection = database.collection(MongoCollections.COMMENT_ENTRIES);
+        const result = await collection.deleteOne({blogId: new ObjectId(searched_blog_id), commentId: new ObjectId(searched_comment_id)})
         // Check the result and return a status
-        if (result.modifiedCount > 0) {
-            console.log(`Comment with commentId ${commentId} deleted from blog with id ${blogId}`);
+        if (result.deletedCount === 1) {
+            console.log(`Comment with commentId ${searched_comment_id} deleted from blog with id ${searched_blog_id}`);
             return { status: 200, message: 'Comment deleted successfully' };
-        } else {
+        } else if (result.deletedCount === 0) {
             console.log(`No matching comment found to delete.`);
             return { status: 404, message: 'Comment not found' };
+        } else{
+            console.log('When deleting a comment, multiple were affected. This shouldnt happen!')
+            return { status: 500, message: 'Internal Error'};
         }
     } catch (error) {
         console.error('Error deleting comment:', error);
@@ -194,6 +166,7 @@ async function deleteCommentOfBlogByCommentId(blogId, commentId){
 module.exports = {
     getBlogEntry,
     createBlogEntry,
+    getCommentsOfBlogId,
     addCommentToBlogEntry,
     removeBlogEntry,
     findCommentByCommentIdInBlog,

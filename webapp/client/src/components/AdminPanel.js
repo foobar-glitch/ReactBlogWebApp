@@ -29,8 +29,8 @@ const AdminPanel = () => {
                             <td>{user.user_role}</td>
                             <td>
                                 <select class="role-select">
-                                    <option value="user">User</option>
-                                    <option value="author">Author</option>
+                                    <option value="user">user</option>
+                                    <option value="author">author</option>
                                 </select>
                             </td>
                             <td>

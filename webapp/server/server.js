@@ -87,7 +87,10 @@ app.get('/authenticate', async (req, res) => {
 app.get('/blogs', (req, res) => {
     getBlogEntry().then(
         collection_entries => {
-            res.json(collection_entries);
+            const changed_date_format = collection_entries.map(
+                ({ comments, ...rest }) => ({...rest})
+            )
+            res.json(changed_date_format);
         }
     )
 });

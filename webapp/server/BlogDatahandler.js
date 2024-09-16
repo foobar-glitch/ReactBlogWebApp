@@ -16,7 +16,7 @@ async function getBlogEntry(id_num=null) {
             collection_entries = await collection.find({ id: +id_num }).toArray();
             collection_entries = collection_entries[0];
         }else{
-            collection_entries = await collection.find({}).toArray();
+            collection_entries = await collection.find({}).sort({ createdAt: -1 }).toArray();
         }
 
         // Display the retrieved documents

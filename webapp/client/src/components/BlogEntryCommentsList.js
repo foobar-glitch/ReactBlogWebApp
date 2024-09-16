@@ -56,9 +56,6 @@ const BlogEntryCommentsList = ({comments}) => {
         )
     }
 
-
-   
-
     return(
         (
         <div className="comment-list">

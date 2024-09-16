@@ -2,7 +2,7 @@
 var session = require('express-session')
 const express = require('express');
 const cors = require('cors');
-const { getBlogEntry, createBlogEntry, addCommentToBlogEntry, removeBlogEntry, findCommentByCommentIdInBlog, deleteCommentOfBlogByCommentId, getCommentsOfBlogId } = require('./BlogDatahandler');
+const { getBlogEntry, createBlogEntry, addCommentToBlogEntry, removeBlogEntry, findCommentByCommentIdInBlog, deleteCommentOfBlogByCommentId, getCommentsOfBlogId, deleteAllCommentsFromBlog } = require('./BlogDatahandler');
 const { SqlHandler } = require('./Authenticator');
 const { isEmailValid } = require('./EmailValidator');
 const crypto = require('crypto');
@@ -197,7 +197,9 @@ app.delete('/blogs/:id', async (req, res) => {
         })
     }
     if(entries.author == profile_data.username || profile_data.role == "admin"){
+        
         const deleteResult = await removeBlogEntry(req.params.id);
+        const deleteComments = await deleteAllCommentsFromBlog(req.params.id);
         return res.json({
             status: 200,
             message: "Succesfully deleted the blog."

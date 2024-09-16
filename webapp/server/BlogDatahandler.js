@@ -67,6 +67,20 @@ async function removeBlogEntry(searched_blog_id){
 
 }
 
+async function deleteAllCommentsFromBlog(searched_blog_id) {
+    const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+    try{
+        await client.connect();
+        const database = client.db(MongoSecrets.DB_NAME);
+        const collection = database.collection(MongoCollections.COMMENT_ENTRIES);
+        const deleteResult = await collection.deleteMany({ blogId: new ObjectId(searched_blog_id) })
+        return deleteResult
+    }finally{
+        await client.close()
+    }
+    
+}
+
 
 async function getCommentsOfBlogId(searched_blog_id) {
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -79,7 +93,7 @@ async function getCommentsOfBlogId(searched_blog_id) {
 
 
     }finally{
-        client.close()
+        await client.close()
     }
     
 
@@ -115,7 +129,7 @@ async function addCommentToBlogEntry(userId, user, comment, searched_blog_id){
       } catch (error) {
         // Handle the error
       } finally {
-        client.close()
+        await client.close()
       }
 }
 
@@ -166,6 +180,7 @@ async function deleteCommentOfBlogByCommentId(searched_blog_id, searched_comment
 module.exports = {
     getBlogEntry,
     createBlogEntry,
+    deleteAllCommentsFromBlog,
     getCommentsOfBlogId,
     addCommentToBlogEntry,
     removeBlogEntry,

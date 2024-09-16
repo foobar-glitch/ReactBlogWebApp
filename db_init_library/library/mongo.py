@@ -37,15 +37,14 @@ def create_blog_entries(MONGO_HOST, MONGO_PORT, DB_NAME, COLLECTION, USER, USER_
 
     current_time = datetime.now()
     admin_post = {
-        '_id': ObjectId(),
+        'blogId': ObjectId(),
         'createdAt': current_time.strftime('%Y-%m-%dT%H:%M:%SZ'),  # Format as UTC string
         'title': adming_title,
         'body': admin_body,
         'author': admin_username,
-        'id': 1,
         'comments': [
            {
-           'commentId': 1,
+           'commentId': ObjectId(),
            'userId': 3, 
            'username': 'user', 
            'comment': 'Great Website',
@@ -61,15 +60,14 @@ def create_blog_entries(MONGO_HOST, MONGO_PORT, DB_NAME, COLLECTION, USER, USER_
 
     current_time = datetime.now()
     author_post = {
-        '_id': ObjectId(),
+        'blogId': ObjectId(),
         'createdAt': current_time.strftime('%Y-%m-%dT%H:%M:%SZ'),  # Format as UTC string
         'title': author_tile,
         'body': author_body,
         'author': auhor_username,
-        'id': 2,
         'comments': [
            {
-           'commentId': 1,
+           'commentId': ObjectId(),
            'userId': 3, 
            'username': 'user', 
            'comment': 'Nice Post',

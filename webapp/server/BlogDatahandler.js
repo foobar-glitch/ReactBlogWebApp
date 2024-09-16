@@ -3,7 +3,7 @@ const { MongoSecrets, MongoCollections } = require('./DBConfigs');
 const uri = `mongodb://${MongoSecrets.USER}:${MongoSecrets.USER_PASSWORD}@${MongoSecrets.HOST}:${MongoSecrets.PORT}`;
 
 
-async function getBlogEntry(id_num=null) {
+async function getBlogEntry(searched_id=null) {
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
     try {
         await client.connect();
@@ -12,8 +12,8 @@ async function getBlogEntry(id_num=null) {
     
         // Retrieve all documents from the collection
         let collection_entries;
-        if(id_num){
-            collection_entries = await collection.find({ id: +id_num }).toArray();
+        if(searched_id){
+            collection_entries = await collection.find({ blogId: new ObjectId(searched_id) }).toArray();
             collection_entries = collection_entries[0];
         }else{
             collection_entries = await collection.find({}).sort({ createdAt: -1 }).toArray();
@@ -32,18 +32,14 @@ async function createBlogEntry(title_val, body_val, author_val){
         await client.connect();
         const database = client.db(MongoSecrets.DB_NAME);
         const collection = database.collection(MongoCollections.BLOG_ENTRIES);
-        const lastEntry = await collection.findOne({}, { sort: { _id: -1 } });
         const currentTime = new Date();
 
-        const lastEntryId = lastEntry ? lastEntry.id : 0
-
         const newBlog = {
-            _id: new ObjectId(),
+            blogId: new ObjectId(),
             createdAt : currentTime.toUTCString(),
             title: title_val,
             body: body_val,
             author: author_val,
-            id: ( lastEntryId + 1 ),
             comments: []
         };
 
@@ -56,10 +52,10 @@ async function createBlogEntry(title_val, body_val, author_val){
 
 }
 
-async function addCommentToBlogEntry(userId, user, comment, blog_id){
+async function addCommentToBlogEntry(userId, user, comment, searched_blog_id){
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
     try {
-        const entry = await getBlogEntry(blog_id);
+        const entry = await getBlogEntry(searched_blog_id);
         if(!entry){
             return 0;
         }
@@ -69,22 +65,11 @@ async function addCommentToBlogEntry(userId, user, comment, blog_id){
         const database = client.db(MongoSecrets.DB_NAME);
         const collection = database.collection(MongoCollections.BLOG_ENTRIES);
 
-        // Step 1: Find the blog post by id and fetch the highest commentId
-        const blogPost = await collection.findOne({ id: +blog_id }, { projection: { comments: 1 } });
-        let newCommentId = 0;
-        if (blogPost && blogPost.comments && blogPost.comments.length > 0) {
-            // Extract the highest commentId from the existing comments
-            const maxComment = blogPost.comments.reduce((max, comment) => {
-                return comment.commentId > max ? comment.commentId : max;
-            }, 0);
-            newCommentId = maxComment + 1;
-        }
-
         result = await collection.updateOne(
-            {id: +blog_id}, { $push: {
+            {blogId: new ObjectId(searched_blog_id)}, { $push: {
                 comments: {
                     $each: [{
-                        commentId: newCommentId,
+                        commentId: new ObjectId(),
                         userId: userId,
                         username: user,
                         comment: comment,

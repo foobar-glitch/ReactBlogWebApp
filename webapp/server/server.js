@@ -423,7 +423,7 @@ app.delete('/blogs/:blogId/comments/:commentId', async (req, res) => {
     
 
     const comments = await findCommentByCommentIdInBlog(blogId, commentId)
-
+    console.log(comments)
     const profile_user = profile_data.username
     const profile_userId = profile_data.userId
     const profile_role = profile_data.role

@@ -24,7 +24,8 @@ const MongoSecrets = {
 };
 
 const MongoCollections = {
-    BLOG_ENTRIES: process.env.MONGO_COLLECTION_NAME
+    BLOG_ENTRIES: process.env.MONGO_COLLECTION_NAME,
+    COMMENT_ENTRIES: process.env.MONGO_COMMENTS_NAME
 }
 
 module.exports = {

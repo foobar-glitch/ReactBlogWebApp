@@ -59,6 +59,16 @@ async function addCommentToBlogEntry(userId, user, comment, searched_blog_id){
         if(!entry){
             return 0;
         }
+        /*
+        const newComment = {
+            blogId: new ObjectId(searched_blog_id),
+            commentId : new ObjectId(),
+            userId: userId,
+            username: user,
+            comment: comment,
+            createdAt: currentTime.toUTCString()
+        }
+         */
         // Do something with the entry
         const currentTime = new Date();
         await client.connect();
@@ -99,13 +109,13 @@ async function addCommentToBlogEntry(userId, user, comment, searched_blog_id){
       }
 }
 
-async function removeBlogEntry(id_val){
+async function removeBlogEntry(searched_blog_id){
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
     try{
         await client.connect();
         const database = client.db(MongoSecrets.DB_NAME);
         const collection = database.collection(MongoCollections.BLOG_ENTRIES);
-        const deleteResult = await collection.deleteOne({ id: +id_val });
+        const deleteResult = await collection.deleteOne({ blogId: new ObjectId(searched_blog_id) });
         return deleteResult;
 
     }finally{
@@ -120,30 +130,33 @@ async function findCommentByCommentIdInBlog(blogId, commentId){
         await client.connect()
         const database = client.db(MongoSecrets.DB_NAME);
         const collection = database.collection(MongoCollections.BLOG_ENTRIES);
+        const blog_object_id = new ObjectId(blogId)
+        const comment_object_id = new ObjectId(commentId)
         const comments = await collection.aggregate([
             {
-                $match: { id: +blogId } // Match the blog document with the given blogId
+              // Match the blog document based on the blogId field
+              $match: { blogId: blog_object_id }
             },
             {
-                $project: { // Project only the necessary fields
-                    _id: 0, // Exclude the _id field
-                    comments: {
-                        $filter: { // Filter the comments array
-                            input: '$comments',
-                            as: 'comment',
-                            cond: { $eq: ['$$comment.commentId', +commentId] }
-                        }
-                    }
+              // Project the comments field and filter only the relevant comment
+              $project: {
+                _id: 0, // Exclude the _id field
+                comments: {
+                  $filter: {
+                    input: '$comments',
+                    as: 'comment',
+                    cond: { $eq: ['$$comment.commentId', comment_object_id] } // Match the commentId
+                  }
                 }
+              }
             }
-        ]).toArray();
+          ]).toArray();
         if(comments.length !== 1){
             throw Error("There should only be one comment with that id in that blog")
         }
         //if(comments[0].length !== 1){
         //    throw Error("There should only be one comment with that id in that blog 2")
         //}
-        console.log(comments[0].comments[0])
         return comments[0].comments[0]
     }finally{
         await client.close()
@@ -157,8 +170,8 @@ async function deleteCommentOfBlogByCommentId(blogId, commentId){
         const database = client.db(MongoSecrets.DB_NAME);
         const collection = database.collection(MongoCollections.BLOG_ENTRIES);
         const result = await collection.updateOne(
-            { id: +blogId }, // Filter to match the document with the given blogId
-            { $pull: { comments: { commentId: +commentId } } } // Pull (remove) the comment with the specified commentId
+            { blogId: new ObjectId(blogId) }, // Filter to match the document with the given blogId
+            { $pull: { comments: { commentId: new ObjectId(commentId) } } } // Pull (remove) the comment with the specified commentId
         );
 
         // Check the result and return a status

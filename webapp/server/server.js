@@ -98,7 +98,6 @@ app.get('/blogs/:id', (req, res) => {
         collection_entries => {
             if(collection_entries){
                 // reduce collection entries to unsensitive data
-                comments = collection_entries.comments
                 const reduced_collection = {
                     createdAt: collection_entries.createdAt,
                     title: collection_entries.title,

@@ -13,8 +13,10 @@ async function getBlogEntry(searched_id=null) {
         // Retrieve all documents from the collection
         let collection_entries;
         if(searched_id){
-            collection_entries = await collection.find({ blogId: new ObjectId(searched_id) }).toArray();
-            collection_entries = collection_entries[0];
+            if (!ObjectId.isValid(searched_id)) {
+                return null
+            }
+            collection_entries = await collection.findOne({ blogId: new ObjectId(searched_id) })
         }else{
             collection_entries = await collection.find({}).sort({ createdAt: -1 }).toArray();
         }
@@ -55,6 +57,9 @@ async function createBlogEntry(title_val, body_val, author_val){
 async function removeBlogEntry(searched_blog_id){
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
     try{
+        if (!ObjectId.isValid(searched_blog_id)) {
+            return null
+        }
         await client.connect();
         const database = client.db(MongoSecrets.DB_NAME);
         const collection = database.collection(MongoCollections.BLOG_ENTRIES);
@@ -70,6 +75,9 @@ async function removeBlogEntry(searched_blog_id){
 async function deleteAllCommentsFromBlog(searched_blog_id) {
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
     try{
+        if (!ObjectId.isValid(searched_blog_id)) {
+            return null
+        }
         await client.connect();
         const database = client.db(MongoSecrets.DB_NAME);
         const collection = database.collection(MongoCollections.COMMENT_ENTRIES);
@@ -85,6 +93,9 @@ async function deleteAllCommentsFromBlog(searched_blog_id) {
 async function getCommentsOfBlogId(searched_blog_id) {
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
     try{
+        if (!ObjectId.isValid(searched_blog_id)) {
+            return null
+        }
         await client.connect();
         const database = client.db(MongoSecrets.DB_NAME);
         const collection = database.collection(MongoCollections.COMMENT_ENTRIES);
@@ -102,6 +113,9 @@ async function getCommentsOfBlogId(searched_blog_id) {
 async function addCommentToBlogEntry(userId, user, comment, searched_blog_id){
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
     try {
+        if (!ObjectId.isValid(searched_blog_id)) {
+            return null
+        }
         const entry = await getBlogEntry(searched_blog_id);
         if(!entry){
             return 0;
@@ -137,6 +151,9 @@ async function addCommentToBlogEntry(userId, user, comment, searched_blog_id){
 async function findCommentByCommentIdInBlog(searched_blog_id, searched_comment_id){
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
     try{
+        if (!ObjectId.isValid(searched_blog_id) || !ObjectId.isValid(searched_comment_id)) {
+            return null
+        }
         await client.connect()
         const database = client.db(MongoSecrets.DB_NAME);
         const collection = database.collection(MongoCollections.COMMENT_ENTRIES);
@@ -153,6 +170,9 @@ async function findCommentByCommentIdInBlog(searched_blog_id, searched_comment_i
 async function deleteCommentOfBlogByCommentId(searched_blog_id, searched_comment_id){
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
     try{
+        if (!ObjectId.isValid(searched_blog_id) || !ObjectId.isValid(searched_comment_id)) {
+            return null
+        }
         await client.connect()
         const database = client.db(MongoSecrets.DB_NAME);
         const collection = database.collection(MongoCollections.COMMENT_ENTRIES);

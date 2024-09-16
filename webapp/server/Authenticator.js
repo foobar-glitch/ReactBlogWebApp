@@ -313,7 +313,41 @@ class SqlHandler{
         }finally{
             await closeDatabaseConnection(db_connection)
         }
-        
+    }
+
+    static async update_user_role(user_id, new_role){
+        let db_connection
+        try{
+            db_connection = await connectToDatabase();
+            if(!user_id){
+                return null;
+            }
+            if(new_role !== 'admin' && new_role !== 'author' && new_role !== 'user'){
+                return null
+            }
+
+            const profile_data = await performQuery(
+                db_connection,
+                `UPDATE ${SQLTableNames.USERS} SET role = ? WHERE userId = ?`,
+                [new_role, user_id]
+            )
+
+            if(profile_data.affectedRows === 1){
+                return 0;
+            }
+            else{
+                if(profile_data.affectedRows === 0){
+                    return 1;
+                }
+                else{
+                    console.log("More than one row affected!")
+                    return -1;
+                }
+            }
+        }finally{
+            await closeDatabaseConnection(db_connection)
+        }
+
     }
 
     static async logout(session){

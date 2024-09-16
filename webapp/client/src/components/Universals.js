@@ -11,6 +11,7 @@ const reset_by_token_endpoint = api_endpoint + '/forgot/reset'
 const register_by_token_endpoint = api_endpoint + '/register/validate'
 const csrf_endpoint = api_endpoint + '/csrf'
 const admin_endpoint = api_endpoint + '/admin'
+const set_role_endpoint = admin_endpoint + '/set-role'
 
 
-export {blogs_endpoint, login_endpoint, logout_endpoint, register_endpoint, authenticate_endpoint, profile_data_endpoint, forgot_password_enpoint, reset_by_token_endpoint, register_by_token_endpoint, csrf_endpoint, admin_endpoint};
+export {blogs_endpoint, login_endpoint, logout_endpoint, register_endpoint, authenticate_endpoint, profile_data_endpoint, forgot_password_enpoint, reset_by_token_endpoint, register_by_token_endpoint, csrf_endpoint, admin_endpoint, set_role_endpoint};

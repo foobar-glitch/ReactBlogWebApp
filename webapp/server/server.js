@@ -20,6 +20,13 @@ function generateRandomString(length) {
 }
 
 
+function isAdmin(profile_data){
+    if(!profile_data || profile_data.role !== 'admin'){
+        return false
+    }
+    return true
+}
+
 
 const app = express();
 app.set('trust proxy', 1)
@@ -470,6 +477,41 @@ app.get('/admin', async (req, res) => {
     })
 
 })
+
+
+app.post('/admin/set-role', async (req, res) => {
+    if(!req.session){
+        return res.json(authentication_failed_message);
+    }
+    const profile_data = await SqlHandler.get_profile_info_from_session(req.session);
+    if(!isAdmin(profile_data)){
+        return res.json({
+            status: 403,
+            message: 'Missing Authority'
+        })
+    }
+    const user_id = req.body.user_id
+    const user_role = req.body.role
+
+    const update_successfull = await SqlHandler.update_user_role(user_id, user_role)
+    if(update_successfull === 0){
+        return res.json({
+            status: 200,
+            message: 'Changed user role'
+        })
+    }else if(update_successfull === 1){
+        return res.json({
+            status: 401,
+            message: 'Nothing changed'
+        })
+    }else{
+        return res.json({
+            status: 500,
+            message: 'Some Server Error happened'
+        })
+    }
+})
+
 
 app.listen(8080, () => {
     console.log(`Server is running on port 8080.`);

@@ -248,7 +248,7 @@ class SqlHandler{
             const user_of_cookie = cookie_table_data[0].userId;
             // Only use cookie if not expired, otherwise delete entry
             const currentTime = new Date();
-            if (cookie_table_data[0].expiresAt < currentTime) {
+            if (cookie_table_data[0].expired_at < currentTime) {
                 session.destroy();
                 await performQuery(
                     db_connection,

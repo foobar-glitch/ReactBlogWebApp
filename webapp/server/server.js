@@ -84,34 +84,40 @@ app.get('/authenticate', async (req, res) => {
 
 })
 
-app.get('/blogs', (req, res) => {
-    getBlogEntry().then(
-        collection_entries => {
-            res.json(collection_entries);
-        }
-    )
+app.get('/blogs', async (req, res) => {
+    const blog_entries = await getBlogEntry()
+    // dropping the _id field
+    let reduced_blog_entries = [];
+    blog_entries.map((blog_entry) => {
+        reduced_blog_entries.push(
+            {
+                blogId: blog_entry.blogId, 
+                createdAt: blog_entry.createdAt, 
+                title: blog_entry.title,
+                body: blog_entry.body,
+                author: blog_entry.author
+            }
+        )
+    })
+    return res.json(reduced_blog_entries)
 });
 
 
-app.get('/blogs/:id', (req, res) => {
-    getBlogEntry(req.params.id).then(
-        collection_entries => {
-            if(collection_entries){
-                // reduce collection entries to unsensitive data
-                const reduced_collection = {
-                    createdAt: collection_entries.createdAt,
-                    title: collection_entries.title,
-                    body: collection_entries.body,
-                    author: collection_entries.author,
-                }
-
-                res.json({status: 200, message: reduced_collection});
-            }else{
-                res.json({status: 404, message: null});
-            }
-            
+app.get('/blogs/:id', async (req, res) => {
+    const collection_entries = await getBlogEntry(req.params.id)
+    if(collection_entries){
+        // reduce collection entries to unsensitive data
+        const reduced_collection = {
+            createdAt: collection_entries.createdAt,
+            title: collection_entries.title,
+            body: collection_entries.body,
+            author: collection_entries.author,
         }
-    )
+
+        res.json({status: 200, message: reduced_collection});
+    }else{
+        res.json({status: 404, message: null});
+    }
 });
 
 

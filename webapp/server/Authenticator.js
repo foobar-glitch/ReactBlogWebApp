@@ -14,7 +14,7 @@ class SqlHandler{
         try{
             db_connection = await connectToDatabase();
             const currentTime = new Date();
-            const cookie_expire_time = new Date(currentTime.getDate() + COOKIE_EXPIRAION_TIME_MS)
+            const cookie_expire_time = new Date(currentTime.getTime() + COOKIE_EXPIRAION_TIME_MS)
 
             const salt_rows = await performQuery(
                 db_connection, 

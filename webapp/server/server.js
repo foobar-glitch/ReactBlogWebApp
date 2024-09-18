@@ -44,7 +44,12 @@ app.use(session({
 	secret: crypto_secret,
 	resave: true,
 	saveUninitialized: true,
-    cookie: { maxAge: COOKIE_EXPIRAION_TIME_MS, sameSite: 'Strict', secure: false }
+    cookie: { 
+	    maxAge: COOKIE_EXPIRAION_TIME_MS,
+	    httpOnly: true,  // dont let browser javascript access cookie ever,
+	    sameSite: 'Strict', 
+	    secure: false
+    }
 }));
 
 app.use(cors({

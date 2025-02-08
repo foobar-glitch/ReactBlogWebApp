@@ -8,6 +8,7 @@ const { data: csrf, isPending: csrf_is_pending, error: error_csrf } = useFetchGE
   return (
     (!csrf_is_pending && !error_csrf && csrf&& csrf.status === 200) &&
     (<input type='hidden' name="_csrf" value={csrf.message} required></input>)
+    
   );
 };
 

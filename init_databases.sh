@@ -1,5 +1,5 @@
 
 cd db_init_library
-python sql_init.py
-python mongo_init.py
+python3 sql_init.py
+python3 mongo_init.py
 cd ..

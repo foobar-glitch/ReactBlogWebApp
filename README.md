@@ -238,3 +238,12 @@ Apache settings. Instead of allowing every request to ```/api``` limit it.
     ProxyPassReverse "http://backendserver:8080/api/publicendpoint2"
 </Location>
 ```
+Run for the server
+```
+yarn start server.js
+```
+
+For the client
+```
+yarn add react-scripts
+```

@@ -115,6 +115,12 @@ def init_db(SQL_HOST, SQL_PORT, ROOT_USER_PASSWORD, USER_NAME, USER_PASSWORD, DB
     user_connection.close()
 
 
+def check_id_exists(cursor, user_table, idNumber):
+    cursor.execute(f"SELECT COUNT(*) FROM {user_table} WHERE userID = {idNumber}")
+    result = cursor.fetchone()
+    return result[0] == 0
+
+
 def create_users(SQL_HOST, SQL_PORT, USER_NAME, USER_PASSWORD, DB_NAME, USERS_TABLE):
     user_connection = mariadb.connect(
         host=SQL_HOST,
@@ -141,9 +147,12 @@ def create_users(SQL_HOST, SQL_PORT, USER_NAME, USER_PASSWORD, DB_NAME, USERS_TA
         VALUES  (3, 'user', 'user@mail.com', SHA2(CONCAT('user',UNHEX('391feef6e93e0b29')), 256), '391feef6e93e0b29', 'user', NOW(), NOW());
     """
 
-    cursor.execute(create_admin)
-    cursor.execute(create_author)
-    cursor.execute(create_user)
+    if not check_id_exists(cursor, USERS_TABLE, '1'):
+        cursor.execute(create_admin)
+    if not check_id_exists(cursor, USERS_TABLE, '2'): 
+        cursor.execute(create_author)
+    if not check_id_exists(cursor, USERS_TABLE, '3'):
+        cursor.execute(create_user)
 
     user_connection.commit()
     user_connection.close()

@@ -46,15 +46,6 @@ def create_blog_entries(MONGO_HOST, MONGO_PORT, DB_NAME, COLLECTION, USER, USER_
     user_connection = MongoClient(f'mongodb://{USER}:{USER_PASSWORD}@{MONGO_HOST}:{MONGO_PORT}/')
     db: Database = getattr(user_connection, f'{DB_NAME}')
     collection = db[COLLECTION]
-
-    last_entry = collection.find_one(sort=[('_id', -1)])
-
-
-    # Determine the last entry's ID
-    if 'id' in last_entry:
-       last_entry_id = last_entry['id']
-    else:
-       last_entry_id = 0
     # Data for the new blog entry
     adming_title = "Announcement of Admin"  # Replace with actual title value
     admin_body = "Welcome to this website"  # Replace with actual body value

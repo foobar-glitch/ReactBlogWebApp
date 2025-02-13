@@ -27,19 +27,17 @@ def init_mongo_db(MONGO_HOST, MONGO_PORT, DB_NAME, ROOT_PASSWORD, USER, USER_PAS
             { "role":"readWrite","db":f"{DB_NAME}"}
           ]
         )
-  except OperationFailure as e:
-      if e.code == 51003:  # User already exists
-          print(f"User {USER} already created")
-          root_db.command(
-            "updateUser",
-            USER,
-            pwd=USER_PASSWORD,
-            roles=[
-            { "role":"readWrite","db":f"{DB_NAME}"}
-            ]
-        )
-      else:
-          raise e  # Re-raise other errors
+  except Exception as e:
+        print(e)
+        print(f"User {USER} already created")
+        root_db.command(
+        "updateUser",
+        USER,
+        pwd=USER_PASSWORD,
+        roles=[
+        { "role":"readWrite","db":f"{DB_NAME}"}
+        ]
+    )
   # Switch to user
   root_connection.close()
 
@@ -53,7 +51,10 @@ def create_blog_entries(MONGO_HOST, MONGO_PORT, DB_NAME, COLLECTION, USER, USER_
 
 
     # Determine the last entry's ID
-    last_entry_id = last_entry['id'] if last_entry else 0
+    if 'id' in last_entry:
+       last_entry_id = last_entry['id']
+    else:
+       last_entry_id = 0
     # Data for the new blog entry
     adming_title = "Announcement of Admin"  # Replace with actual title value
     admin_body = "Welcome to this website"  # Replace with actual body value

@@ -3,8 +3,8 @@ from dotenv import load_dotenv
 from library.mongo import init_mongo_db, create_blog_entries
 
 def give_mongo_env():
-    load_dotenv("/var/www/private/nodejs/blog/rootdata/.env.mongo.internals")
-    load_dotenv("/var/www/private/nodejs/blog/userdata/.env.mongo.internals")
+    load_dotenv("/home/hamed/projects/ReactBlogWebApp/webapp/server/.env")
+
     MONGO_HOST = "127.0.0.1"
     MONGO_PORT = 27017 #os.getenv('MONGO_PORT')
 

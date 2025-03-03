@@ -1,4 +1,4 @@
-const api_endpoint = 'http://localhost:8080';
+const api_endpoint = 'http://127.0.0.1:8080';
 //const api_endpoint = "/api";
 const login_endpoint = api_endpoint + '/login';
 const logout_endpoint = api_endpoint + '/logout';

@@ -15,8 +15,6 @@ def init_db(SQL_HOST, SQL_PORT, ROOT_USER_PASSWORD, USER_NAME, USER_PASSWORD, DB
             user="root",
             passwd=ROOT_USER_PASSWORD,
         )
-    except Exception:
-        pass
 
     cursor = root_connection.cursor()
     #change password of root to new password

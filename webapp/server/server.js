@@ -11,7 +11,7 @@ const sanitizeHtml = require('sanitize-html');
 const { COOKIE_EXPIRAION_TIME_MS } = require('./server_constants');
 
 
-const local_domain = "http://localhost:3000"
+const local_domain = "http://127.0.0.1:80"
 const remote_domain = "http://[2a02:908:e845:3560::8070]:80"
 const server_domain = local_domain
 

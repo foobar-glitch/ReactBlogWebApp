@@ -238,3 +238,6 @@ Apache settings. Instead of allowing every request to ```/api``` limit it.
     ProxyPassReverse "http://backendserver:8080/api/publicendpoint2"
 </Location>
 ```
+#### Install dev
+yarn install client and server. then run docker-compose up -f docker-compose.dev.yml. Then run python3 mongo_init.py and python3 sql_init.py. 
+Then run yarn start client and yarn start server.

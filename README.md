@@ -241,3 +241,14 @@ Apache settings. Instead of allowing every request to ```/api``` limit it.
 #### Install dev
 yarn install client and server. then run docker-compose up -f docker-compose.dev.yml. Then run python3 mongo_init.py and python3 sql_init.py. 
 Then run yarn start client and yarn start server.
+
+
+### Run
+
+```bash 
+cd webapp/client
+yarn install
+yarn build
+sudo docker-compose -f docker-compose.yml up --build
+./init_databases.sh
+```

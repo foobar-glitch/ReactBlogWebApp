@@ -252,3 +252,8 @@ yarn build
 sudo docker-compose -f docker-compose.yml up --build
 ./init_databases.sh
 ```
+
+### Debugging 
+```bash
+mongosh "mongodb://blog_agent:securepassword_mongodb111@127.0.0.1:27017"
+```

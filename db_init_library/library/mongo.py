@@ -42,15 +42,6 @@ def create_blog_entries(MONGO_HOST, MONGO_PORT, DB_NAME, COLLECTION, USER, USER_
         'title': adming_title,
         'body': admin_body,
         'author': admin_username,
-        'comments': [
-           {
-           'commentId': ObjectId(),
-           'userId': 3, 
-           'username': 'user', 
-           'comment': 'Great Website',
-           'createdAt': current_time.strftime('%Y-%m-%dT%H:%M:%SZ')
-           }
-        ]
     }
 
     # Data for the new blog entry
@@ -64,16 +55,7 @@ def create_blog_entries(MONGO_HOST, MONGO_PORT, DB_NAME, COLLECTION, USER, USER_
         'createdAt': current_time.strftime('%Y-%m-%dT%H:%M:%SZ'),  # Format as UTC string
         'title': author_tile,
         'body': author_body,
-        'author': auhor_username,
-        'comments': [
-           {
-           'commentId': ObjectId(),
-           'userId': 3, 
-           'username': 'user', 
-           'comment': 'Nice Post',
-           'createdAt': current_time.strftime('%Y-%m-%dT%H:%M:%SZ')
-           }
-        ]
+        'author': auhor_username
     }
 
     result = collection.insert_one(admin_post)
